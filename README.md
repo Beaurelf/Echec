@@ -1,2 +1,2 @@
 # Echec
-Jeu d'échec entièrement codé en C++
+Jeu d'échec entièrement codé en C++ sur QtCreator
