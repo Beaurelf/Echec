@@ -6,6 +6,8 @@
     // couleur des joueurs
     enum Couleur {BLANC, NOIR};
 
+    enum Type {SOLDAT, TOUR, CHEVALIER, FOU, REINE, ROI};
+
     class Utils {
         public:
             static const QString COULEUR_BLANCHE;
@@ -28,5 +30,8 @@
             static const std::string FOU_NOIR ;
             static const std::string CHEVALIER_NOIR;
             static const std::string PION_NOIR;
+
+            static const QString MARQUER;
     };
+
 #endif

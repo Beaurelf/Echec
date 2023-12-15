@@ -9,7 +9,7 @@ Home::Home(QMainWindow *parent) :
 
     widget->setObjectName("Home");
 
-    QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect;
+    QGraphicsOpacityEffect*   opacityEffect = new QGraphicsOpacityEffect;
 
     //effect->setOpacity(100);
 

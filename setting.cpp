@@ -19,3 +19,4 @@ const std::string Utils::TOUR_NOIR = ":/images/img/tour_noir.jpg";
 const std::string Utils::FOU_NOIR = ":/images/img/fou_noir.jpg";
 const std::string Utils::CHEVALIER_NOIR = ":/images/img/chevalier_noir.jpg";
 const std::string Utils::PION_NOIR = ":/images/img/pion_noir.jpg";
+const QString Utils::MARQUER = ":/images/img/marquer.jpg";
