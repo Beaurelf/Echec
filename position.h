@@ -11,7 +11,8 @@ public:
     int getX() const;
     int getY() const;
     bool egale(const Position& autre) const;
-    void modifier_position(int a, int b); // modifie la position x = a et y = b
+    bool egale(int x, int y) const;
+    void modifier_position(int x, int y);
 };
 
 #endif
