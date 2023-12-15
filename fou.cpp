@@ -1,16 +1,13 @@
 #include "fou.h"
 
 Fou::Fou(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
-    if(couleur == BLANC){
-        image = Utils::FOU_BLANC;
-    }else{
-        image = Utils::FOU_NOIR;
-    };
+    image = (couleur == BLANC) ? Utils::FOU_BLANC : Utils::FOU_NOIR;
+    type = FOU;
 };
 
 Fou::~Fou(){};
 
-vector<Position> Fou::positions_possibles(array<array<Piece*, 8>, 8> pieces) const{
+vector<Position> Fou::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const{
     int x(position.getX());
     int y(position.getY());
     vector<Position> positions;
@@ -27,7 +24,7 @@ vector<Position> Fou::positions_possibles(array<array<Piece*, 8>, 8> pieces) con
             Position pos(x+i, y+i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_1 = false;
                 }
             }else{
@@ -39,7 +36,7 @@ vector<Position> Fou::positions_possibles(array<array<Piece*, 8>, 8> pieces) con
             Position pos(x-i, y+i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_2 = false;
                 }
             }else{
@@ -51,7 +48,7 @@ vector<Position> Fou::positions_possibles(array<array<Piece*, 8>, 8> pieces) con
             Position pos(x+i, y-i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_3 = false;
                 }
             }else{
@@ -63,7 +60,7 @@ vector<Position> Fou::positions_possibles(array<array<Piece*, 8>, 8> pieces) con
             Position pos(x-i, y-i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_4 = false;
                 }
             }else{

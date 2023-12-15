@@ -1,17 +1,13 @@
 #include "tour.h"
-#include <string>
 
 Tour::Tour(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
-    if(couleur == BLANC){
-        image =Utils:: TOUR_BLANC;
-    }else{
-        image = Utils::TOUR_NOIR;
-    };
+    image = (couleur == BLANC) ? Utils::TOUR_BLANC : Utils::TOUR_NOIR;
+    type = TOUR;
 };
 
 Tour::~Tour(){};
 
-vector<Position> Tour::positions_possibles(array<array<Piece*, 8>, 8> pieces) const{
+vector<Position> Tour::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const{
     int x(position.getX());
     int y(position.getY());
     vector<Position> positions;
@@ -26,7 +22,7 @@ vector<Position> Tour::positions_possibles(array<array<Piece*, 8>, 8> pieces) co
             Position pos(x+i, y);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_1 = false;
                 }
             }else{
@@ -38,7 +34,7 @@ vector<Position> Tour::positions_possibles(array<array<Piece*, 8>, 8> pieces) co
             Position pos(x-i, y);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_2 = false;
                 }
             }else{
@@ -50,7 +46,7 @@ vector<Position> Tour::positions_possibles(array<array<Piece*, 8>, 8> pieces) co
             Position pos(x, y-i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_3 = false;
                 }
             }else{
@@ -62,14 +58,14 @@ vector<Position> Tour::positions_possibles(array<array<Piece*, 8>, 8> pieces) co
             Position pos(x, y+i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_4 = false;
                 }
             }else{
                 p_4 = false;
             }
         }
-        if((p_1 == false) and (p_2 == false) and (p_3 == false) and (p_4 == false)){
+        if((p_1 == false) && (p_2 == false) && (p_3 == false) && (p_4 == false)){
             break;
         }
         ++i;

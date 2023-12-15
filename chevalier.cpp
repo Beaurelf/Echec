@@ -1,16 +1,13 @@
 #include "chevalier.h"
 
 Chevalier::Chevalier(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
-    if(couleur == BLANC){
-        image = Utils::CHEVALIER_BLANC;
-    }else{
-        image = Utils::CHEVALIER_NOIR;
-    };
+    image = (couleur == BLANC) ? Utils::CHEVALIER_BLANC : Utils::CHEVALIER_NOIR;
+    type = CHEVALIER;
 };
 
 Chevalier::~Chevalier(){};
 
-vector<Position> Chevalier::positions_possibles(array<array<Piece*, 8>, 8> pieces) const{
+vector<Position> Chevalier::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const{
     int x(position.getX());
     int y(position.getY());
     vector<Position> positions;

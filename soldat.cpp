@@ -1,21 +1,23 @@
 #include "soldat.h"
 
 Soldat::Soldat(int x, int y, Couleur couleur, int x_init, int y_init) : Piece(x, y, couleur), x_init(x_init), y_init(y_init) {
-    if(couleur == BLANC){
-        image = Utils::PION_BLANC;
-    }else{
-        image = Utils::PION_NOIR;
-    };
+    image = (couleur == BLANC) ? Utils::PION_BLANC : Utils::PION_NOIR;
+    type = SOLDAT;
 };
 
 Soldat::~Soldat(){};
 
-bool Soldat::position_valide(const Position& position, array<array<Piece*, 8>, 8> pieces) const{
+bool Soldat::position_valide(const Position& position,const array<array<Piece*, 8>, 8>& pieces) const{
     return not ((pieces[position.getY()][position.getX()] != nullptr) and
             (position.egale(pieces[position.getY()][position.getX()]->get_position())));
 }
 
-vector<Position> Soldat::positions_possibles(array<array<Piece*, 8>, 8> pieces) const{
+int Soldat::get_y_init() const
+{
+    return y_init;
+}
+
+vector<Position> Soldat::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const{
     int x(position.getX());
     int y(position.getY());
     vector<Position> positions;
@@ -57,8 +59,9 @@ vector<Position> Soldat::positions_possibles(array<array<Piece*, 8>, 8> pieces) 
                 }
             }
         }
-
-    }else{
+    }
+    else
+    {
         Position pos(x,y-1);
         if(this->position_valide(pos, pieces)){
             positions.push_back(pos);

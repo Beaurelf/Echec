@@ -8,15 +8,15 @@
 #include <QIcon>
 #include <QDebug>
 #include <QLabel>
-#include "piece.h"
-#include "soldat.h"
-#include "chevalier.h"
-#include "fou.h"
-#include "roi.h"
-#include "reine.h"
-#include "tour.h"
+#include <QMessageBox>
+#include <QGroupBox>
+#include <QButtonGroup>
+#include <QDialog>
+#include <QRadioButton>
 
-typedef std::array<std::array<QPushButton*,8>,8> Tabechiquier;
+#include "echec_model.h"
+
+typedef array<array<QPushButton*,8>,8> Tabechiquier;
 
 class Echiquier : public QWidget
 {
@@ -24,21 +24,23 @@ class Echiquier : public QWidget
 
 private:
     Tabechiquier tabechiquier;
-    std::array<std::array<Piece*, 8>, 8> pieces; // contient les pieces du joueur
-    Piece* piece_selectionnee; // pointe vers une piece selectionnée
-    Piece* ancienne_piece_selectionnee; // pointe vers l'ancienne piece selectionnée
-    Couleur joueur_courant = BLANC;
     QLabel* label_joueur; // indiquant quel joueur doit jouer
     bool machine; // true si le joueur joue contre la machine
+    EchecModel* echec_model_;
 
 public:
     Echiquier(bool machine, QMainWindow *parent = nullptr);
     ~Echiquier();
-    void initialiser();
+    void setup();
 
 public slots:
-    void afficher_deplacement_possibles(int i, int j);
-    void deplacer(int i, int j);
+    void case_pressee(int i, int j);
+    void afficher_deplacement_possibles();
+    void deplacer_piece(int i, int j, vector<Position> positions_mangeable, vector<Position> positions_non_mangeable);
+    void roi_en_echec();
+    void choix_promotion(int i, int j);
+    void piece_promue(Position position_avant_promotion);
+    //void piece_mangee(string image);
 
 };
 

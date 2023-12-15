@@ -4,214 +4,224 @@
 std::array<array<QString, 8>,8> couleurs;
 
 Echiquier::Echiquier(bool machine, QMainWindow *parent)
-    : QWidget(parent), machine(machine)
+    : QWidget(parent)
+{
+    echec_model_ = new EchecModel(machine);
+    setup();
+}
+
+void Echiquier::setup()
 {
     QWidget* widget = new QWidget(this);
     QGridLayout* layout = new QGridLayout;
     QString couleur(Utils::COULEUR_BLANCHE);
 
-    initialiser();
-
     for (size_t i(0); i < tabechiquier.size(); ++i) {
         for (size_t j(0); j < tabechiquier[i].size(); ++j) {
             QPushButton* btn = new QPushButton;
-            btn->setStyleSheet("background-color:"+couleur);
-            if(pieces[i][j] != nullptr){
-                QString image =  QString::fromStdString(pieces[i][j]->get_image());
+            btn->setStyleSheet("background-color:" + couleur);
+            if(echec_model_->get_pieces()[i][j] != nullptr){
+                QString image =  QString::fromStdString(echec_model_->get_pieces()[i][j]->get_image());
                 btn->setIcon(QIcon(image));
                 btn->setIconSize(QSize(60,60));
             }
             btn->setFixedSize(QSize(80,80));
             tabechiquier[i][j] = btn;
-            connect(tabechiquier[i][j], &QPushButton::clicked,[this, i, j]{deplacer(i, j);});
+            connect(tabechiquier[i][j], &QPushButton::clicked, [this, i, j]{case_pressee(i, j);});
             layout->addWidget(tabechiquier[i][j], i, j, 1, 1);
 
-            couleur = couleur == "white" ? Utils::COULEUR_NOIR : Utils::COULEUR_BLANCHE;
             couleurs[i][j] = couleur == "white" ? Utils::COULEUR_BLANCHE : Utils::COULEUR_NOIR;
+            couleur = couleur == "white" ? Utils::COULEUR_NOIR : Utils::COULEUR_BLANCHE;
         }
         couleur = couleur == "white" ? Utils::COULEUR_NOIR : Utils::COULEUR_BLANCHE;
     }
 
     QFont font("Century Gothic", 16);
-    label_joueur = new QLabel("C'est le tour du joueur Blanc");
+    label_joueur = new QLabel;
     label_joueur->setFont(font);
+
+    QString text = (echec_model_->get_joueur_courant() == BLANC) ? "Blanc" : "Noir";
+    label_joueur->setText("C'est au tour du joueur " + text);
 
     layout->addWidget(label_joueur, tabechiquier.size() + 1, 0, 1, tabechiquier.size());
 
     layout->setSpacing(0);
     widget->setLayout(layout);
+
+    connect(echec_model_, SIGNAL(piece_selectionee()), this, SLOT(afficher_deplacement_possibles()));
+    connect(echec_model_, SIGNAL(piece_deplacee(int,int, vector<Position>, vector<Position>)),
+            this, SLOT(deplacer_piece(int, int, vector<Position>, vector<Position>)));
+    connect(echec_model_, SIGNAL(roi_en_echec()), this, SLOT(roi_en_echec()));
+    connect(echec_model_, SIGNAL(choix_promotion(int, int)), this, SLOT(choix_promotion(int, int)));
+    connect(echec_model_, SIGNAL(piece_promue(Position)), this, SLOT(piece_promue(Position)));
 }
 
-void Echiquier::initialiser()
+void Echiquier::case_pressee(int i, int j)
 {
-    piece_selectionnee = nullptr;
-    ancienne_piece_selectionnee = nullptr;
-    // initialisation des pieces avec nullptr
-    for (size_t i(0); i < tabechiquier.size(); ++i) {
-        for (size_t j(0); j < tabechiquier[i].size(); ++j) {
-            pieces[i][j] = nullptr;
-        }
+    if(echec_model_->get_piece_selectionnee() == nullptr)
+    {
+        if(echec_model_->get_pieces()[i][j] != nullptr && echec_model_->get_pieces()[i][j]->get_couleur() == echec_model_->get_joueur_courant())
+            echec_model_->selectionner_piece(i, j);
     }
-
-    //placement des pions
-    for (size_t i(0); i < 8; ++i) {
-        pieces[1][i] = new Soldat(i, 1, NOIR, i, 1);
-        pieces[6][i] = new Soldat(i, 6, BLANC, i, 6);
-    }
-
-    pieces[0][0] = new Tour(0, 0, NOIR);
-    pieces[0][7] = new Tour(7, 0, NOIR);
-
-    pieces[0][1] = new Chevalier(1, 0, NOIR);
-    pieces[0][6] = new Chevalier(6, 0, NOIR);
-
-    pieces[0][2] = new Fou(2, 0, NOIR);
-    pieces[0][5] = new Fou(5, 0, NOIR);
-
-    pieces[0][3] = new Reine(3, 0, NOIR);
-    pieces[0][4] = new Roi(4, 0, NOIR);
-
-    pieces[7][0] = new Tour(0, 7, BLANC);
-    pieces[7][7] = new Tour(7, 7, BLANC);
-
-    pieces[7][1] = new Chevalier(1, 7, BLANC);
-    pieces[7][6] = new Chevalier(6, 7, BLANC);
-
-    pieces[7][2] = new Fou(2, 7, BLANC);
-    pieces[7][5] = new Fou(5, 7, BLANC);
-
-    pieces[7][3] = new Reine(3, 7, BLANC);
-    pieces[7][4] = new Roi(4, 7, BLANC);
-}
-
-void Echiquier::afficher_deplacement_possibles(int i, int j){
-    // i = y et j = x
-    if(pieces[i][j] != nullptr){
-        if(piece_selectionnee == nullptr){
-            if(pieces[i][j]->get_couleur() == joueur_courant){
-                piece_selectionnee = pieces[i][j];
-                tabechiquier[i][j]->setStyleSheet("background-color:" + Utils::COULEUR_BELGE);
-
-                for (auto position : piece_selectionnee->positions_possibles(pieces)) {
-                    if(piece_selectionnee->manger(position, pieces)){
-                        tabechiquier[position.getY()][position.getX()]->setStyleSheet("background-color:" + Utils::COULEUR_ROUGE);
-                    }else{
-                        tabechiquier[position.getY()][position.getX()]->setIcon(QIcon(":/images/img/marquer.jpg"));
-                        tabechiquier[position.getY()][position.getX()]->setIconSize(QSize(60,60));
-                    }
-                }
-            }
+    else
+    {
+        if(echec_model_->get_pieces()[i][j] != nullptr && echec_model_->get_pieces()[i][j]->get_couleur() == echec_model_->get_joueur_courant())
+        {
+            echec_model_->selectionner_piece(i, j);
         }
-        else{
-            if(pieces[i][j]->get_couleur() == joueur_courant){
-                // on remet la couleur de la case
-                tabechiquier[piece_selectionnee->get_position().getY()][piece_selectionnee->get_position().getX()]
-                    ->setStyleSheet("background-color:" + couleurs[piece_selectionnee->get_position().getY()][piece_selectionnee->get_position().getX()]);
-                ancienne_piece_selectionnee = piece_selectionnee;
-                piece_selectionnee = pieces[i][j];
-                tabechiquier[i][j]->setStyleSheet("background-color:" + Utils::COULEUR_BELGE);
+        else
+        {
+            auto position_possibles = echec_model_->deplacement_possibles();
+            auto it = find_if(position_possibles.begin(), position_possibles.end(), [&](const Position& pos){
+                return pos.egale(j, i);
+            });
 
-                if(not piece_selectionnee->get_position().egale(ancienne_piece_selectionnee->get_position())){
-                    for (auto position : ancienne_piece_selectionnee->positions_possibles(pieces)) {
-                        if(ancienne_piece_selectionnee->manger(position, pieces)){
-                            tabechiquier[position.getY()][position.getX()]->setStyleSheet("background-color:"+couleurs[position.getY()][position.getX()]);
-                        }else{
-                            tabechiquier[position.getY()][position.getX()]->setIcon(QIcon());
-                        }
-                    }
-                    for (auto position : piece_selectionnee->positions_possibles(pieces)) {
-                        if(piece_selectionnee->manger(position, pieces)){
-                            tabechiquier[position.getY()][position.getX()]->setStyleSheet("background-color:" + Utils::COULEUR_ROUGE);
-                        }else{
-                            tabechiquier[position.getY()][position.getX()]->setIcon(QIcon(":/images/img/marquer.jpg"));
-                            tabechiquier[position.getY()][position.getX()]->setIconSize(QSize(60,60));
-                        }
-                    }
-                }
+            if(it != position_possibles.end())
+            {
+                if(echec_model_->get_pieces()[i][j] != nullptr)
+                    echec_model_->manger_piece(i, j);
+                else
+                    echec_model_->deplacer_piece(i, j);
             }
+
         }
     }
 }
 
-void Echiquier::deplacer(int i, int j){
-    bool deplacement_valide(false);
+void Echiquier::afficher_deplacement_possibles(){
     // i = y et j = x
-    //On teste si le deplacement est valide en regardant si (j,i) = (x,y) ou x,y correspondent aux differents deplacements de la piece selectionnee
-    if((piece_selectionnee != nullptr) and not (piece_selectionnee->positions_possibles(pieces).empty())){
-        for(auto position : piece_selectionnee->positions_possibles(pieces)){
-            if((i == position.getY()) and (j == position.getX())){
-                deplacement_valide = true;
-                break;
-            }
-        }
-    }
-
-    if(deplacement_valide){
-        // si le deplacemet est valide on remet le pointeur pieces[x de la piece selectionnee][y de la piece selectionnee] au pointeur nul
-        pieces[piece_selectionnee->get_position().getY()][piece_selectionnee->get_position().getX()] = nullptr;
-
-        // remettre la couleur
-        tabechiquier[piece_selectionnee->get_position().getY()][piece_selectionnee->get_position().getX()]
-            ->setStyleSheet("background-color:" + couleurs[piece_selectionnee->get_position().getY()][piece_selectionnee->get_position().getX()]);
-
-        for (auto position : piece_selectionnee->positions_possibles(pieces)) {
-            if(piece_selectionnee->manger(position, pieces)){
-                tabechiquier[position.getY()][position.getX()]->setStyleSheet("background-color:"+couleurs[position.getY()][position.getX()]);
-            }else{
+    Piece* piece_selectionnee = echec_model_->get_piece_selectionnee();
+    Piece* ancienne_piece_selectionnee = echec_model_->get_ancienne_piece_selectionnee();
+    if(ancienne_piece_selectionnee != nullptr)
+    {
+        Position position = ancienne_piece_selectionnee->get_position();
+        tabechiquier[position.getY()][position.getX()]->setStyleSheet("background-color:"+couleurs[position.getY()][position.getX()]);
+        for (auto& position : echec_model_->ancien_deplacement_possibles())
+        {
+            if(ancienne_piece_selectionnee->peut_manger(position, echec_model_->get_pieces()))
+                tabechiquier[position.getY()][position.getX()]->setStyleSheet("background-color:" + couleurs[position.getY()][position.getX()]);
+            else
                 tabechiquier[position.getY()][position.getX()]->setIcon(QIcon());
-            }
         }
+    }
 
-        //on enleve l'icone de la piece a la precedente position
-        tabechiquier[piece_selectionnee->get_position().getY()][piece_selectionnee->get_position().getX()]->setIcon(QIcon());
+    tabechiquier[piece_selectionnee->get_position().getY()][piece_selectionnee->get_position().getX()]->setStyleSheet("background-color:" + Utils::COULEUR_BELGE);
 
-        // on modifie la position de la piece selectionnee
-        piece_selectionnee->se_deplacer(j, i, pieces);
-
-        // on libere la memoire si la piece i j est non nulle
-        if(pieces[i][j] != nullptr){
-            delete pieces[i][j];
-            pieces[i][j] = nullptr;
+    for (auto& position : echec_model_->deplacement_possibles())
+    {
+        if(piece_selectionnee->peut_manger(position, echec_model_->get_pieces()))
+            tabechiquier[position.getY()][position.getX()]->setStyleSheet("background-color:" + Utils::COULEUR_ROUGE);
+        else
+        {
+            tabechiquier[position.getY()][position.getX()]->setIcon(QIcon(Utils::MARQUER));
+            tabechiquier[position.getY()][position.getX()]->setIconSize(QSize(60,60));
         }
-
-        // on l'assigne a pieces[i][j]
-        pieces[i][j] = piece_selectionnee;
-
-        // on met l'icone correspondante a la nouvelle position de la piece
-        QString image =  QString::fromStdString(piece_selectionnee->get_image());
-        tabechiquier[i][j]->setIcon(QIcon(image));
-        tabechiquier[i][j]->setIconSize(QSize(60,60));
-
-        // On renitialise les pointeurs piece selectionnee et ancienne piece selectionnee au pointeur nul
-        piece_selectionnee = nullptr;
-        ancienne_piece_selectionnee = nullptr;
-
-        // on change de joueur
-        if(joueur_courant == BLANC){
-            joueur_courant = NOIR;
-            label_joueur->setText("C'est au tour du joueur Noir");
-        }else{
-            joueur_courant = BLANC;
-            label_joueur->setText("C'est au tour du joueur Blanc");
-        }
-    }else{
-        afficher_deplacement_possibles(i, j);
     }
 }
+
+void Echiquier::choix_promotion(int i, int j)
+{
+
+    QDialog* fenetre = new QDialog;
+    fenetre->setWindowTitle("Promotion du Pion");
+
+    QGroupBox *groupbox = new QGroupBox("Faites votre choix", fenetre);
+    QVBoxLayout* layout_choix = new QVBoxLayout;
+    QVBoxLayout* conteneur_choix = new QVBoxLayout;
+
+    // Création des boutons radio pour le choix de la pièce
+    QButtonGroup* group_choix = new QButtonGroup(fenetre);
+    QRadioButton *reine = new QRadioButton("Reine");
+    QRadioButton *fou = new QRadioButton("Fou");
+    QRadioButton *tour = new QRadioButton("Tour");
+    QRadioButton *chevalier = new QRadioButton("Chevalier");
+
+    group_choix->addButton(reine, 1);
+    group_choix->addButton(fou, 2);
+    group_choix->addButton(tour, 3);
+    group_choix->addButton(chevalier, 4);
+    group_choix->setExclusive(true);
+    reine->setChecked(true); // Reine sélectionnée par défaut
+
+    // Ajout des boutons radio au layout
+    layout_choix->addWidget(reine);
+    layout_choix->addWidget(fou);
+    layout_choix->addWidget(tour);
+    layout_choix->addWidget(chevalier);
+
+    // Création des boutons de confirmation
+    QHBoxLayout* buttonsLayout = new QHBoxLayout;
+    QPushButton* btnOk = new QPushButton("Confirmer");
+    buttonsLayout->addWidget(btnOk);
+
+    // Ajout du layout de boutons au layout principal
+    layout_choix->addLayout(buttonsLayout);
+
+    // Configuration du layout de la groupbox
+    groupbox->setLayout(layout_choix);
+    conteneur_choix->addWidget(groupbox);
+
+    // Connexion des boutons à leurs slots
+    connect(btnOk, &QPushButton::clicked, fenetre, [this, fenetre, group_choix, i, j]() {
+        int choix = group_choix->checkedId();
+        if(choix == 1)
+            echec_model_->set_promotion(Type::REINE, j, i);
+        else if(choix == 2)
+            echec_model_->set_promotion(Type::FOU, j, i);
+        else if(choix == 3)
+            echec_model_->set_promotion(Type::TOUR, j, i);
+        else if(choix == 4)
+            echec_model_->set_promotion(Type::CHEVALIER, j, i);
+        fenetre->accept();  // Fermer la fenêtre après la confirmation
+    });
+
+    // Affichage de la fenêtre
+    fenetre->setLayout(conteneur_choix);
+    fenetre->setFixedSize(QSize(200,200));
+    fenetre->exec();
+}
+
+void Echiquier::piece_promue(Position pos)
+{
+    tabechiquier[pos.getY()][pos.getX()]->setStyleSheet("background-color:" + couleurs[pos.getY()][pos.getX()]);
+    tabechiquier[pos.getY()][pos.getX()]->setIcon(QIcon());
+}
+
+void Echiquier::deplacer_piece(int i, int j, vector<Position> positions_mangeable, vector<Position> positions_non_mangeable)
+{
+    Piece* piece_deplacee = echec_model_->get_pieces()[i][j];
+    // on remet la couleur initiale et on enleve l'icone
+    tabechiquier[piece_deplacee->get_ancienne_position().getY()][piece_deplacee->get_ancienne_position().getX()]
+        ->setStyleSheet("background-color:" + couleurs[piece_deplacee->get_ancienne_position().getY()][piece_deplacee->get_ancienne_position().getX()]);
+    tabechiquier[piece_deplacee->get_ancienne_position().getY()][piece_deplacee->get_ancienne_position().getX()]->setIcon(QIcon());
+
+    // on remet les couleurs initiales
+    for (auto& position : positions_mangeable)
+        tabechiquier[position.getY()][position.getX()]->setStyleSheet("background-color:" + couleurs[position.getY()][position.getX()]);
+
+    for(auto& position : positions_non_mangeable)
+        tabechiquier[position.getY()][position.getX()]->setIcon(QIcon());
+
+    QString image =  QString::fromStdString(piece_deplacee->get_image());
+    tabechiquier[i][j]->setIcon(QIcon(image));
+    tabechiquier[i][j]->setIconSize(QSize(60,60));
+
+    // on change de joueur
+    QString text = (echec_model_->get_joueur_courant() == BLANC) ? "Blanc" : "Noir";
+    label_joueur->setText("C'est au tour du joueur " + text);
+}
+
+void Echiquier::roi_en_echec()
+{
+    QString joueur_courant = (echec_model_->get_joueur_courant() == BLANC ? "blanc" : "noir");
+    QMessageBox::warning(nullptr, "Échec", "Joueur " + joueur_courant + " votre roi est en échec!\n"
+                            "Veuillez déplacer une pièce vous permettant de sortir de l'échec.\n "
+                            "Aucune autre pièce que celles vous permettant de sortir de l'échec\n"
+                            "ne pourra être jouée.");
+}
+
 
 Echiquier::~Echiquier()
 {
-    delete piece_selectionnee;
-    piece_selectionnee = nullptr;
-    delete ancienne_piece_selectionnee;
-    ancienne_piece_selectionnee = nullptr;
-    // initialisation des pieces avec nullptr
-    for (size_t i(0); i < tabechiquier.size(); ++i) {
-        for (size_t j(0); j < tabechiquier[i].size(); ++j) {
-            delete pieces[i][j];
-            pieces[i][j] = nullptr;
-        }
-    }
+    delete echec_model_;
 }
-
-

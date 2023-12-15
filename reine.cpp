@@ -1,16 +1,13 @@
 #include "reine.h"
 
 Reine::Reine(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
-    if(couleur == BLANC){
-        image = Utils::REINE_BLANC;
-    }else{
-        image = Utils::REINE_NOIR;
-    };
+    image = (couleur == BLANC) ? Utils::REINE_BLANC : Utils::REINE_NOIR;
+    type = REINE;
 };
 
 Reine::~Reine(){};
 
-vector<Position> Reine::positions_possibles(array<array<Piece*, 8>, 8> pieces) const{
+vector<Position> Reine::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const{
     int x(position.getX());
     int y(position.getY());
     vector<Position> positions;
@@ -27,7 +24,7 @@ vector<Position> Reine::positions_possibles(array<array<Piece*, 8>, 8> pieces) c
             Position pos(x+i, y);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_1 = false;
                 }
             }else{
@@ -39,7 +36,7 @@ vector<Position> Reine::positions_possibles(array<array<Piece*, 8>, 8> pieces) c
             Position pos(x-i, y);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_2 = false;
                 }
             }else{
@@ -51,7 +48,7 @@ vector<Position> Reine::positions_possibles(array<array<Piece*, 8>, 8> pieces) c
             Position pos(x, y-i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_3 = false;
                 }
             }else{
@@ -63,7 +60,7 @@ vector<Position> Reine::positions_possibles(array<array<Piece*, 8>, 8> pieces) c
             Position pos(x, y+i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_4 = false;
                 }
             }else{
@@ -90,7 +87,7 @@ vector<Position> Reine::positions_possibles(array<array<Piece*, 8>, 8> pieces) c
             Position pos(x+i, y+i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_1 = false;
                 }
             }else{
@@ -102,7 +99,7 @@ vector<Position> Reine::positions_possibles(array<array<Piece*, 8>, 8> pieces) c
             Position pos(x-i, y+i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_2 = false;
                 }
             }else{
@@ -114,7 +111,7 @@ vector<Position> Reine::positions_possibles(array<array<Piece*, 8>, 8> pieces) c
             Position pos(x+i, y-i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_3 = false;
                 }
             }else{
@@ -126,7 +123,7 @@ vector<Position> Reine::positions_possibles(array<array<Piece*, 8>, 8> pieces) c
             Position pos(x-i, y-i);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-                if(manger(pos, pieces)){
+                if(peut_manger(pos, pieces)){
                     p_4 = false;
                 }
             }else{

@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    echec_model.cpp \
     echiquier.cpp \
     home.cpp \
     main.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
     chevalier.cpp
 
 HEADERS += \
+    echec_model.h \
     echiquier.h \
     game.h \
     home.h \
