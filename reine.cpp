@@ -7,133 +7,38 @@ Reine::Reine(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
 
 Reine::~Reine(){};
 
-vector<Position> Reine::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const{
-    int x(position.getX());
-    int y(position.getY());
+vector<Position> Reine::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const {
+    int x = position.getX();
+    int y = position.getY();
     vector<Position> positions;
 
-    bool p_1(true);
-    bool p_2(true);
-    bool p_3(true);
-    bool p_4(true);
+    // Directions: droite, gauche, bas, haut, diagonales
+    vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}, {1, 1}, {-1, 1}, {1, -1}, {-1, -1}};
 
-    int i(1);
+    for (const auto& dir : directions) {
+        int dx = dir.first;
+        int dy = dir.second;
+        int i = 1;
 
-    while((x+i <= 7) or (y+i <= 7) or (x-i >= 0) or (y-i >= 0)){
-        if(x + i <= 7  and p_1){ // DROITE
-            Position pos(x+i, y);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-                if(peut_manger(pos, pieces)){
-                    p_1 = false;
-                }
-            }else{
-                p_1 = false;
+        while (true) {
+            int nouveauX = x + i * dx;
+            int nouveauY = y + i * dy;
+
+            if (nouveauX < 0 || nouveauX >= 8 || nouveauY < 0 || nouveauY >= 8) {
+                break; // Sortie de l'échiquier
             }
-        }
 
-        if(x - i >= 0  and p_2){ // GAUCHE
-            Position pos(x-i, y);
-            if(this->position_valide(pos, pieces)){
+            Position pos(nouveauX, nouveauY);
+            if (position_valide(pos, pieces)) {
                 positions.push_back(pos);
-                if(peut_manger(pos, pieces)){
-                    p_2 = false;
+                if (peut_manger(pos, pieces)) {
+                    break; // Arrêtez de chercher dans cette direction après avoir trouvé une pièce à manger
                 }
-            }else{
-                p_2 = false;
+            } else {
+                break; // Bloqué par une pièce, arrêtez de chercher dans cette direction
             }
+            ++i;
         }
-
-        if(y - i >= 0  and p_3){ // EN BAS
-            Position pos(x, y-i);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-                if(peut_manger(pos, pieces)){
-                    p_3 = false;
-                }
-            }else{
-                p_3 = false;
-            }
-        }
-
-        if(y + i <= 7  and p_4){ //  EN HAUT
-            Position pos(x, y+i);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-                if(peut_manger(pos, pieces)){
-                    p_4 = false;
-                }
-            }else{
-                p_4 = false;
-            }
-        }
-        if((p_1 == false) and (p_2 == false) and (p_3 == false) and (p_4 == false)){
-            break;
-        }
-        ++i;
-    }
-
-    // reaffectation des variables initiales
-    i = 1;
-    p_1 = true;
-    p_2 = true;
-    p_3 = true;
-    p_4 = true;
-
-    // nous permettra d'avoir les differentes positions en soustrayant ajoutant le meme nombre a l'abscisses et a l'ordonne
-    while (((x + i <= 7) and (y + i <= 7)) or ((x - i >= 0) and (y + i <= 7)) or ((x + i <= 7) and (y - i >= 0)) or ((x - i >= 0) and (y - i >= 0)))
-    {
-        if((x + i <= 7) and (y + i <= 7) and p_1){ // DROITE EN HAUT
-            Position pos(x+i, y+i);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-                if(peut_manger(pos, pieces)){
-                    p_1 = false;
-                }
-            }else{
-                p_1 = false;
-            }
-        }
-
-        if((x - i >= 0) and (y + i <= 7) and p_2){ // GAUCHE EN HAUT
-            Position pos(x-i, y+i);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-                if(peut_manger(pos, pieces)){
-                    p_2 = false;
-                }
-            }else{
-                p_2 = false;
-            }
-        }
-
-        if((x + i <= 7) and (y - i >= 0) and p_3){ // DROITE EN BAS
-            Position pos(x+i, y-i);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-                if(peut_manger(pos, pieces)){
-                    p_3 = false;
-                }
-            }else{
-                p_3 = false;
-            }
-        }
-
-        if((x - i >= 0) and (y - i >= 0) and p_4){ // GAUCHE EN BAS
-            Position pos(x-i, y-i);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-                if(peut_manger(pos, pieces)){
-                    p_4 = false;
-                }
-            }else{
-                p_4 = false;
-            }
-        }
-        if((p_1 == false) and (p_2 == false) and (p_3 == false) and (p_4 == false)){
-            break;
-        }
-        ++i;
     }
 
     return positions;

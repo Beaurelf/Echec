@@ -7,67 +7,22 @@ Chevalier::Chevalier(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
 
 Chevalier::~Chevalier(){};
 
-vector<Position> Chevalier::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const{
-    int x(position.getX());
-    int y(position.getY());
+vector<Position> Chevalier::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const {
+    int x = position.getX();
+    int y = position.getY();
     vector<Position> positions;
 
+    // Déplacements possibles du chevalier
+    vector<pair<int, int>> deplacements = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
 
-    if(x + 2 <= 7){
-        if(y - 1 >= 0){
-            Position pos(x+2, y-1);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-            }
-        }
-        if(y + 1 <= 7){
-            Position pos(x+2, y+1);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-            }
-        }
-    }
+    for (const auto& dep : deplacements) {
+        int nouveauX = x + dep.first;
+        int nouveauY = y + dep.second;
 
-    if(x - 2 >= 0){
-        if(y - 1 >= 0){
-            Position pos(x-2, y-1);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-            }
-        }
-        if(y + 1 <= 7){
-            Position pos(x-2, y+1);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-            }
-        }
-    }
-
-    if(y + 2 <= 7){
-        if(x - 1 >= 0){
-            Position pos(x-1, y+2);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-            }
-        }
-        if(x + 1 <= 7){
-            Position pos(x+1, y+2);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-            }
-        }
-    }
-
-    if(y - 2 >= 0){
-        if(x - 1 >= 0){
-            Position pos(x-1, y-2);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-            }
-        }
-        if(x + 1 <= 7){
-            Position pos(x+1, y-2);
-            if(this->position_valide(pos, pieces)){
+        // Vérifier si la position est à l'intérieur de l'échiquier
+        if (nouveauX >= 0 && nouveauX < 8 && nouveauY >= 0 && nouveauY < 8) {
+            Position pos(nouveauX, nouveauY);
+            if (this->position_valide(pos, pieces)) {
                 positions.push_back(pos);
             }
         }

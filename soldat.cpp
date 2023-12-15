@@ -21,78 +21,26 @@ vector<Position> Soldat::positions_possibles(const array<array<Piece*, 8>, 8>& p
     int x(position.getX());
     int y(position.getY());
     vector<Position> positions;
-    bool p(true); // regarder s'il y'a une piece devant le pion
+    int direction = (couleur == NOIR) ? 1 : -1;
 
-    if(couleur == NOIR){
-        Position pos(x,y+1);
-        if(this->position_valide(pos, pieces)){
-            positions.push_back(pos);
-        }else{
-            p = false;
-        }
-
-        if(x == x_init and y == y_init and p){
-            Position pos(x,y+2);
+    Position pos(x, y + direction);
+    if(this->position_valide(pos, pieces)){
+        positions.push_back(pos);
+        if(y == y_init){
+            Position pos(x, y + 2 * direction);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
-            }
-        }
-
-        Position pos1(x+1,y+1); // deplacement diagonale si on peut manger
-        for (auto p : pieces) {
-            for (auto const& piece : p) {
-                if((piece!=nullptr) and (piece->get_couleur() != this->get_couleur())){
-                    if(pos1.egale(piece->get_position())){
-                        positions.push_back(pos1);
-                    }
-                }
-            }
-        }
-
-        Position pos2(x-1,y+1); // deplacement diagonale si on peut manger
-        for (auto p : pieces) {
-            for (auto const& piece : p) {
-                if((piece!=nullptr) and (piece->get_couleur() != this->get_couleur())){
-                    if(pos2.egale(piece->get_position())){
-                        positions.push_back(pos2);
-                    }
-                }
             }
         }
     }
-    else
-    {
-        Position pos(x,y-1);
-        if(this->position_valide(pos, pieces)){
-            positions.push_back(pos);
-        }else{
-            p = false;
-        }
 
-        if(x == x_init and y == y_init and p){
-            Position pos(x,y-2);
-            if(this->position_valide(pos, pieces)){
-                positions.push_back(pos);
-            }
-        }
-
-        Position pos1(x+1,y-1); // deplacement diagonale si on peut manger
-        for (auto p : pieces) {
-            for (auto const& piece : p) {
+    vector<Position> positionsDiagonales = {{x - 1, y + direction}, {x + 1, y + direction}};
+    for (const auto& pos : positionsDiagonales) {
+        for (auto& p : pieces) {
+            for (auto& piece : p) {
                 if((piece!=nullptr) and (piece->get_couleur() != this->get_couleur())){
-                    if(pos1.egale(piece->get_position())){
-                        positions.push_back(pos1);
-                    }
-                }
-            }
-        }
-
-        Position pos2(x-1,y-1); // deplacement diagonale si on peut manger
-        for (auto p : pieces) {
-            for (auto const& piece : p) {
-                if((piece!=nullptr) and (piece->get_couleur() != this->get_couleur())){
-                    if(pos2.egale(piece->get_position())){
-                        positions.push_back(pos2);
+                    if(pos.egale(piece->get_position())){
+                        positions.push_back(pos);
                     }
                 }
             }

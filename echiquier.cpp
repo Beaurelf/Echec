@@ -49,7 +49,7 @@ void Echiquier::setup()
     widget->setLayout(layout);
 
     connect(echec_model_, SIGNAL(piece_selectionee()), this, SLOT(afficher_deplacement_possibles()));
-    connect(echec_model_, SIGNAL(piece_deplacee(int,int, vector<Position>, vector<Position>)),
+    connect(echec_model_, SIGNAL(piece_deplacee(int, int, vector<Position>, vector<Position>)),
             this, SLOT(deplacer_piece(int, int, vector<Position>, vector<Position>)));
     connect(echec_model_, SIGNAL(roi_en_echec()), this, SLOT(roi_en_echec()));
     connect(echec_model_, SIGNAL(choix_promotion(int, int)), this, SLOT(choix_promotion(int, int)));
@@ -215,7 +215,7 @@ void Echiquier::roi_en_echec()
 {
     QString joueur_courant = (echec_model_->get_joueur_courant() == BLANC ? "blanc" : "noir");
     QMessageBox::warning(nullptr, "Échec", "Joueur " + joueur_courant + " votre roi est en échec!\n"
-                            "Veuillez déplacer une pièce vous permettant de sortir de l'échec.\n "
+                            "Veuillez déplacer une pièce vous permettant de sortir de l'échec.\n"
                             "Aucune autre pièce que celles vous permettant de sortir de l'échec\n"
                             "ne pourra être jouée.");
 }
