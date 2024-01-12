@@ -30,6 +30,25 @@ namespace Utils {
     const std::string PION_NOIR = ":/images/img/pion_noir.jpg";
     const QString MARQUER = ":/images/img/marquer.jpg";
     const QString CURSOR = ":/images/img/cursor.png";
+    const QString APP_ICON = ":/images/img/app_icon.png";
+
+    const int TAILLE_CASE_ECHIQUIER = 80;
+    const int TAILLE_ICON_CASE_ECHIQUIER = 60;
+    const int TAILLE_CURSOR = 60;
+    const int HAUTEUR_HOME = 680;
+    const int LARGEUR_HOME = 680;
+    const int HAUTEUR_GAME = 710;
+    const int LARGEUR_GAME = 975;
+    const int HAUTEUR_CONTROLS = 680;
+    const int LARGEUR_CONTROLS = 200;
+    const int TAILLE_COULEURS = 8;
+    const int TAILLE_ECHIQUIER = 8;
+    const int TAILLE_PIECES = 8;
+    const int MIN_POSITION = 0;
+    const int MAX_POSITION = 8;
+    const int TAILLE_DIALOG_PROMOTION = 200;
+    const int TAILLE_PIECE_MANGEE = 25;
+    const int CONTRAINTE_HOME = 150;
 }
 
 #endif // UTILS_H
