@@ -15,5 +15,6 @@
         <file>img/marquer.jpg</file>
         <file>img/fond.png</file>
         <file>img/cursor.png</file>
+        <file>img/app_icon.png</file>
     </qresource>
 </RCC>
