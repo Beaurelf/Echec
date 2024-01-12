@@ -1,4 +1,6 @@
 #include "home.h"
+#include "utils.h"
+using namespace Utils;
 
 Home::Home(QMainWindow *parent) :
     QWidget(parent)
@@ -13,7 +15,7 @@ Home::Home(QMainWindow *parent) :
 
     //effect->setOpacity(100);
 
-    QVBoxLayout* container = new QVBoxLayout;
+    QVBoxLayout* conteneur = new QVBoxLayout;
     QVBoxLayout* layout = new QVBoxLayout;
     QVBoxLayout* opacityLayout = new QVBoxLayout;
 
@@ -25,16 +27,16 @@ Home::Home(QMainWindow *parent) :
     QPushButton* btn2 = new QPushButton("J1 VS J2");
     QPushButton* btn_quitter = new QPushButton("Quitter");
 
-    QPixmap cursor(":/images/img/cursor.png");
-    cursor = cursor.scaled(QSize(120,120));
+    QPixmap cursor(CURSOR);
+    cursor = cursor.scaled(QSize(TAILLE_CURSOR, TAILLE_CURSOR));
 
     btn1->setCursor(QCursor(cursor));
     btn2->setCursor(QCursor(cursor));
     btn_quitter->setCursor(QCursor(cursor));
 
-    connect(btn1 , &QPushButton::clicked,[this, parent]{lancer_jeu(true, parent);});
-    connect(btn2 , &QPushButton::clicked,[this, parent]{lancer_jeu(false, parent);});
-    connect(btn_quitter , &QPushButton::clicked,[this, parent]{quitter_jeu(parent);});
+    connect(btn1 , &QPushButton::clicked,[this]{ emit lancer_jeu(true);});
+    connect(btn2 , &QPushButton::clicked,[this]{ emit lancer_jeu(false);});
+    connect(btn_quitter , &QPushButton::clicked,[this]{ emit quitter_jeu();});
 
     layout->addWidget(welcome);
     layout->addWidget(btn1);
@@ -46,9 +48,9 @@ Home::Home(QMainWindow *parent) :
     opacityWidget->setGraphicsEffect(opacityEffect);
 
     widget->setLayout(opacityLayout);
-    widget->setContentsMargins(150, 150, 150, 150);
+    widget->setContentsMargins(CONTRAINTE_HOME, CONTRAINTE_HOME, CONTRAINTE_HOME, CONTRAINTE_HOME);
 
-    container->addWidget(widget, Qt::AlignCenter);
+    conteneur->addWidget(widget, Qt::AlignCenter);
 
     setStyleSheet(
         "QWidget#Home{"
@@ -71,18 +73,7 @@ Home::Home(QMainWindow *parent) :
         "font-size: 20px; "
         "}"
     );
-    this->setLayout(container);
+    this->setLayout(conteneur);
 }
 
-void Home::lancer_jeu(bool machine, QMainWindow* window){
-    Echiquier* echiquier = new Echiquier(machine, window);
-    window->setFixedSize(QSize(680,680));
-    window->setContentsMargins(15, 0, 20, 0);
-    window->setCentralWidget(echiquier);
-    delete this;
-}
-
-void Home::quitter_jeu(QMainWindow* window){
-    window->close();
-}
 Home::~Home(){}

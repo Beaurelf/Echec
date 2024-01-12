@@ -7,7 +7,7 @@
 #include <QMainWindow>
 #include <QGraphicsEffect>
 #include <QPushButton>
-#include "echiquier.h"
+#include <QPixmap>
 
 
 class Home : public QWidget
@@ -18,8 +18,8 @@ public:
     explicit Home(QMainWindow* parent = nullptr);
     ~Home();
 
-public slots:
-    void lancer_jeu(bool machine, QMainWindow* window);
-    void quitter_jeu(QMainWindow* window);
+signals:
+    void lancer_jeu(bool machine);
+    void quitter_jeu();
 };
 #endif // HOME_H
