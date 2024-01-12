@@ -1,4 +1,5 @@
 #include "echec_model.h"
+#include "algorithm"
 
 EchecModel::EchecModel(bool machine, QObject* object) : QObject(object), machine_(machine)
 {
@@ -55,7 +56,7 @@ void EchecModel::initialiser()
     roi_blanc_ = pieces_[7][4];
 }
 
-std::array<std::array<Piece*, 8>, 8> EchecModel::get_pieces()
+std::array<std::array<Piece*, TAILLE_PIECES>, TAILLE_PIECES> EchecModel::get_pieces()
 {
     return pieces_;
 }
@@ -80,17 +81,29 @@ vector<Position> EchecModel::ancien_deplacement_possibles()
     return ancienne_piece_selectionnee_->positions_possibles(pieces_);
 }
 
+bool EchecModel::deplacement_met_en_echec(Piece* piece, const Position& pos)
+{
+    piece->se_deplacer(pos.getX(), pos.getY(), pieces_);
+    Piece* piece_pos = pieces_[pos.getY()][pos.getX()];
+    pieces_[pos.getY()][pos.getX()] = piece; // on simule le deplacement de la piece
+    bool resultat = est_en_echec();
+    pieces_[pos.getY()][pos.getX()] = piece_pos; // on reinitialise si c'etait un pointeur nul
+    piece->retour_position();
+    return resultat;
+}
+
 void EchecModel::selectionner_piece(int i, int j)
 {
     deplacement_possibles_.clear();
-    if(piece_selectionnee_ == nullptr)
-        piece_selectionnee_ = pieces_[i][j];
-    else
-    {
+    if(piece_selectionnee_ != nullptr)
         ancienne_piece_selectionnee_ = piece_selectionnee_;
-        piece_selectionnee_ = pieces_[i][j];
-    }
+    piece_selectionnee_ = pieces_[i][j];
     deplacement_possibles_ = piece_selectionnee_->positions_possibles(pieces_);
+    // enlevement les deplacements mettant le roi en echec
+    auto it = remove_if(deplacement_possibles_.begin(), deplacement_possibles_.end(), [&](const Position& pos){
+        return deplacement_met_en_echec(piece_selectionnee_, pos);
+    });
+    deplacement_possibles_.erase(it, deplacement_possibles_.end());
     emit piece_selectionee();
 }
 
@@ -116,49 +129,60 @@ void EchecModel::set_promotion(const Type& type, int x, int y)
 
 void EchecModel::deplacer_piece(int i, int j)
 {
-    // converser postion ou on peut manger pour enlever la couleur rouge dans la vue
-    vector<Position> positions_mangeable;
-    vector<Position> positions_non_mangeable;
-    for_each(deplacement_possibles_.begin(), deplacement_possibles_.end(), [&](const Position& pos){
-        if(piece_selectionnee_->peut_manger(pos, pieces_))
-            positions_mangeable.push_back(pos);
-        else
-            positions_non_mangeable.push_back(pos);
+    // vérifier si deplacement ne cause pas l'echec du roi
+    auto it = find_if(deplacement_possibles_.begin(), deplacement_possibles_.end(), [&](const Position& pos){
+        return pos.egale(j, i);
     });
-    pieces_[piece_selectionnee_->get_position().getY()][piece_selectionnee_->get_position().getX()] = nullptr;
-    piece_selectionnee_->se_deplacer(j, i, pieces_);
 
-    if(piece_selectionnee_->get_type() == SOLDAT)
+    if(it != deplacement_possibles_.end())
     {
-        if((piece_selectionnee_->get_y_init() == 1 and i == 7) or (piece_selectionnee_->get_y_init() == 6 and i == 0))
+        // converser postion ou on peut manger pour enlever la couleur rouge dans la vue
+        vector<Position> positions_mangeable;
+        vector<Position> positions_non_mangeable;
+        for_each(deplacement_possibles_.begin(), deplacement_possibles_.end(), [&](const Position& pos){
+            if(piece_selectionnee_->peut_manger(pos, pieces_))
+                positions_mangeable.push_back(pos);
+            else
+                positions_non_mangeable.push_back(pos);
+        });
+        pieces_[piece_selectionnee_->get_position().getY()][piece_selectionnee_->get_position().getX()] = nullptr;
+        piece_selectionnee_->se_deplacer(j, i, pieces_);
+
+        if(piece_selectionnee_->get_type() == SOLDAT)
         {
-            Position position_avant_promotion = piece_selectionnee_->get_ancienne_position();
-            delete piece_selectionnee_;
-            emit choix_promotion(i, j);
-            emit piece_promue(position_avant_promotion);
+            if((piece_selectionnee_->get_y_init() == 1 and i == 7) or (piece_selectionnee_->get_y_init() == 6 and i == 0))
+            {
+                Position position_avant_promotion = piece_selectionnee_->get_ancienne_position();
+                delete piece_selectionnee_;
+                emit choix_promotion(i, j);
+                emit piece_promue(position_avant_promotion);
+            }
         }
-    }
 
-    pieces_[i][j] = piece_selectionnee_;
-    piece_selectionnee_ = nullptr;
-    ancienne_piece_selectionnee_ = nullptr;
-    joueur_courant_ = joueur_courant_ == BLANC ? NOIR : BLANC;
-    emit piece_deplacee(i, j, positions_mangeable, positions_non_mangeable);
-    if(est_en_echec())
-    {
-        emit roi_en_echec();
+        delete pieces_[i][j];
+        pieces_[i][j] = piece_selectionnee_;
+        piece_selectionnee_ = nullptr;
+        ancienne_piece_selectionnee_ = nullptr;
+        joueur_courant_ = joueur_courant_ == BLANC ? NOIR : BLANC;
+        emit piece_deplacee(i, j, positions_mangeable, positions_non_mangeable);
+        if(est_en_echec())
+        {
+            if(echec_et_mat())
+                emit roi_en_echec_et_mat();
+            else
+                emit roi_en_echec();
+        }
     }
 }
 
 void EchecModel::manger_piece(int i, int j)
 {
-    string image = pieces_[i][j]->get_image();
-    delete pieces_[i][j];
+    Type type = pieces_[i][j]->get_type();
+    emit piece_mangee(type);
     deplacer_piece(i, j);
-    emit piece_mangee(image);
 }
 
-bool EchecModel::est_en_echec()
+bool EchecModel::est_en_echec() const
 {
     Piece* roi = (joueur_courant_ == BLANC) ? roi_blanc_ : roi_noir_;
     for (size_t i(0); i < pieces_.size(); ++i) {
@@ -173,13 +197,30 @@ bool EchecModel::est_en_echec()
     return false;
 }
 
+bool EchecModel::echec_et_mat()
+{
+    for (size_t i(0); i < pieces_.size(); ++i) {
+        for (size_t j(0); j < pieces_[i].size(); ++j) {
+            if(pieces_[i][j] != nullptr && pieces_[i][j]->get_couleur() == joueur_courant_)
+            {
+                vector<Position> deplacement_possibles = pieces_[i][j]->positions_possibles(pieces_);
+                auto it = remove_if(deplacement_possibles.begin(), deplacement_possibles.end(), [&](const Position& pos){
+                    return deplacement_met_en_echec(pieces_[i][j], pos);
+                });
+                deplacement_possibles.erase(it, deplacement_possibles.end());
+                if (!deplacement_possibles.empty())
+                    return false;
+            }
+        }
+    }
+    return true;
+}
+
 EchecModel::~EchecModel()
 {
     roi_blanc_ = nullptr;
     roi_noir_ = nullptr;
-    delete piece_selectionnee_;
     piece_selectionnee_ = nullptr;
-    delete ancienne_piece_selectionnee_;
     ancienne_piece_selectionnee_ = nullptr;
 
     for (size_t i(0); i < pieces_.size(); ++i) {
