@@ -1,13 +1,13 @@
 #include "reine.h"
 
 Reine::Reine(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
-    image = (couleur == BLANC) ? Utils::REINE_BLANC : Utils::REINE_NOIR;
+    image = (couleur == BLANC) ? REINE_BLANC : REINE_NOIR;
     type = REINE;
 };
 
 Reine::~Reine(){};
 
-vector<Position> Reine::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const {
+vector<Position> Reine::positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const {
     int x = position.getX();
     int y = position.getY();
     vector<Position> positions;
@@ -24,7 +24,7 @@ vector<Position> Reine::positions_possibles(const array<array<Piece*, 8>, 8>& pi
             int nouveauX = x + i * dx;
             int nouveauY = y + i * dy;
 
-            if (nouveauX < 0 || nouveauX >= 8 || nouveauY < 0 || nouveauY >= 8) {
+            if (nouveauX < MIN_POSITION || nouveauX >= MAX_POSITION || nouveauY < MIN_POSITION || nouveauY >= MAX_POSITION) {
                 break; // Sortie de l'échiquier
             }
 

@@ -1,13 +1,13 @@
 #include "chevalier.h"
 
 Chevalier::Chevalier(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
-    image = (couleur == BLANC) ? Utils::CHEVALIER_BLANC : Utils::CHEVALIER_NOIR;
+    image = (couleur == BLANC) ? CHEVALIER_BLANC : CHEVALIER_NOIR;
     type = CHEVALIER;
 };
 
 Chevalier::~Chevalier(){};
 
-vector<Position> Chevalier::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const {
+vector<Position> Chevalier::positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const {
     int x = position.getX();
     int y = position.getY();
     vector<Position> positions;
@@ -20,7 +20,7 @@ vector<Position> Chevalier::positions_possibles(const array<array<Piece*, 8>, 8>
         int nouveauY = y + dep.second;
 
         // Vérifier si la position est à l'intérieur de l'échiquier
-        if (nouveauX >= 0 && nouveauX < 8 && nouveauY >= 0 && nouveauY < 8) {
+        if (nouveauX >= MIN_POSITION && nouveauX < MAX_POSITION && nouveauY >= MIN_POSITION && nouveauY < MAX_POSITION) {
             Position pos(nouveauX, nouveauY);
             if (this->position_valide(pos, pieces)) {
                 positions.push_back(pos);

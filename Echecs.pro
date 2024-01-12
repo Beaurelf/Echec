@@ -19,7 +19,6 @@ SOURCES += \
     roi.cpp \
     reine.cpp \
     fou.cpp \
-    setting.cpp \
     tour.cpp \
     soldat.cpp \
     chevalier.cpp
@@ -29,7 +28,6 @@ HEADERS += \
     echiquier.h \
     game.h \
     home.h \
-    setting.h \
     position.h \
     piece.h \
     roi.h \
@@ -37,7 +35,8 @@ HEADERS += \
     fou.h \
     tour.h \
     soldat.h \
-    chevalier.h
+    chevalier.h \
+    utils.h
 
 TRANSLATIONS += \
     Echecs_fr_FR.ts

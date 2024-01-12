@@ -9,7 +9,7 @@ class Roi: public Piece{
 public:
     Roi(int x, int y, Couleur couleur);
     ~Roi();
-    vector<Position> positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const override;
+    vector<Position> positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const override;
 };
 
 #endif

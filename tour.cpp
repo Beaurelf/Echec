@@ -1,13 +1,13 @@
 #include "tour.h"
 
 Tour::Tour(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
-    image = (couleur == BLANC) ? Utils::TOUR_BLANC : Utils::TOUR_NOIR;
+    image = (couleur == BLANC) ? TOUR_BLANC : TOUR_NOIR;
     type = TOUR;
 };
 
 Tour::~Tour(){};
 
-vector<Position> Tour::positions_possibles(const array<array<Piece*, 8>, 8>& pieces) const {
+vector<Position> Tour::positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const {
     int x = position.getX();
     int y = position.getY();
     vector<Position> positions;
@@ -25,7 +25,7 @@ vector<Position> Tour::positions_possibles(const array<array<Piece*, 8>, 8>& pie
             int nouveauY = y + i * dy;
 
             // Vérifier si la position est à l'intérieur de l'échiquier
-            if (nouveauX < 0 || nouveauX >= 8 || nouveauY < 0 || nouveauY >= 8)
+            if (nouveauX < MIN_POSITION || nouveauX >= MAX_POSITION || nouveauY < MIN_POSITION || nouveauY >= MAX_POSITION)
                 break; // Sortie de l'échiquier
 
             Position pos(nouveauX, nouveauY);
