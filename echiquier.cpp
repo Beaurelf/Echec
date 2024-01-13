@@ -28,7 +28,7 @@ void Echiquier::setup()
     {
         QHBoxLayout* layout1 = new QHBoxLayout;
         QHBoxLayout* layout2 = new QHBoxLayout;
-        QPixmap image_noire(QString::fromStdString(images_noires[images_noires.size() - i - 1]));
+        QPixmap image_noire(QString::fromStdString(images_noires[i]));
         QPixmap image_blanche(QString::fromStdString(images_blanches[i]));
         QLabel *label_img_blanche = new QLabel;
         QLabel *label_img_noire = new QLabel;
