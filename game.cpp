@@ -25,7 +25,6 @@ void Game::setup()
 void Game::accueil()
 {
     this->setFixedSize(QSize(LARGEUR_HOME, HAUTEUR_HOME));
-    delete home_;
     home_ = new Home(this);
     connect(home_, SIGNAL(lancer_jeu(bool)), this, SLOT(lancer_jeu(bool)));
     connect(home_, SIGNAL(quitter_jeu()), this, SLOT(quitter_jeu()));
@@ -63,7 +62,7 @@ void Game::recommencer()
 void Game::lancer_jeu(bool machine)
 {
     machine_ = machine;
-
+    delete home_;
     echiquier_ = new Echiquier(machine, this);
     connect(echiquier_, SIGNAL(recommencer()), this, SLOT(recommencer()));
     connect(echiquier_, SIGNAL(aller_accueil()), this, SLOT(accueil()));
