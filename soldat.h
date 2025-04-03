@@ -1,10 +1,10 @@
+#ifndef _SOLDAT_
+#define _SOLDAT_
+
 #include "piece.h"
 #include <iostream>
 using namespace std;
 #include <vector>
-
-#ifndef _SOLDAT_
-#define _SOLDAT_
 
 class Soldat: public Piece{
 public:

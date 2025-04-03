@@ -1,13 +1,12 @@
-#include "piece.h"
-#include <iostream>
-using namespace std;
-#include <vector>
-#include <QDebug>
-
 #ifndef _TOUR_
 #define _TOUR_
 
-class Tour: public Piece{
+#include "piece.h"
+#include <vector>
+#include <QDebug>
+using namespace std;
+
+class Tour: public virtual Piece{
 public:
     Tour(int x, int y, Couleur couleur);
     ~Tour();

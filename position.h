@@ -1,4 +1,3 @@
-
 #ifndef _POSITION_
 #define _POSITION_
 

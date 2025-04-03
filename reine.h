@@ -1,11 +1,14 @@
-#include "piece.h"
-using namespace std;
-#include <vector>
-
 #ifndef _REINE_
 #define _REINE_
 
-class Reine: public Piece{
+#include "fou.h"
+#include "piece.h"
+#include "tour.h"
+#include <vector>
+
+using namespace std;
+
+class Reine: public Tour, public Fou{
 public:
     Reine(int x, int y, Couleur couleur);
     ~Reine();

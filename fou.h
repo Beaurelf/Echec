@@ -1,11 +1,11 @@
+#ifndef _FOU_
+#define _FOU_
+
 #include "piece.h"
 using namespace std;
 #include <vector>
 
-#ifndef _FOU_
-#define _FOU_
-
-class Fou: public Piece{
+class Fou: public virtual Piece{
 public:
     Fou(int x, int y, Couleur couleur);
     ~Fou();

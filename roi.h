@@ -1,9 +1,9 @@
+#ifndef _ROI_
+#define _ROI_
+
 #include "piece.h"
 using namespace std;
 #include <vector>
-
-#ifndef _ROI_
-#define _ROI_
 
 class Roi: public Piece{
 public:

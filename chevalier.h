@@ -1,9 +1,9 @@
+#ifndef _CHEVALIER_
+#define _CHEVALIER_
+
 #include "piece.h"
 using namespace std;
 #include <vector>
-
-#ifndef _CHEVALIER_
-#define _CHEVALIER_
 
 class Chevalier: public Piece{
 
