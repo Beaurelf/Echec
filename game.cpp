@@ -64,8 +64,8 @@ void Game::lancer_jeu(bool machine)
     machine_ = machine;
     delete home_;
     echiquier_ = new Echiquier(machine, this);
-    connect(echiquier_, SIGNAL(recommencer()), this, SLOT(recommencer()));
-    connect(echiquier_, SIGNAL(aller_accueil()), this, SLOT(accueil()));
+    connect(echiquier_, &Echiquier::recommencer, this, &Game::recommencer);
+    connect(echiquier_, &Echiquier::aller_accueil, this, &Game::accueil);
 
     conteneur_ = new QWidget(this);
     layout_ = new QHBoxLayout;
@@ -84,8 +84,8 @@ void Game::lancer_jeu(bool machine)
     btn_accueil_->setObjectName("Controls");
     btn_recommencer_->setObjectName("Controls");
 
-    connect(btn_accueil_, SIGNAL(clicked(bool)), this, SLOT(accueil()));
-    connect(btn_recommencer_, SIGNAL(clicked(bool)), this, SLOT(recommencer()));
+    connect(btn_accueil_, &QPushButton::clicked, this, &Game::accueil);
+    connect(btn_recommencer_, &QPushButton::clicked, this, &Game::recommencer);
 
     controls_layout->setAlignment(Qt::AlignTop);
     controls_layout->addWidget(btn_accueil_);

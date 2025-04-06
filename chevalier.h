@@ -8,9 +8,9 @@ using namespace std;
 class Chevalier: public Piece{
 
 public:
-    Chevalier(int x, int y, Couleur couleur);
+    Chevalier(int x, int y, Couleur couleur, EchecModel* model);
     ~Chevalier();
-    vector<Position> positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const override;
+    vector<Position> positions_possibles(const Pieces& pieces) const override;
 };
 
 #endif

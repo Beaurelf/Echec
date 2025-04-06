@@ -1,14 +1,13 @@
-#ifndef ECHEC_MODEL_H
-#define ECHEC_MODEL_H
-#include "piece.h"
-#include "soldat.h"
-#include "chevalier.h"
-#include "fou.h"
-#include "roi.h"
-#include "reine.h"
-#include "tour.h"
+#ifndef _PIECE_
+#define _PIECE_
 
 #include <QObject>
+#include <vector>
+#include "utils.h"
+#include "piece.h"
+
+using namespace Utils;
+using namespace std;
 
 class EchecModel : public QObject
 {
@@ -17,7 +16,8 @@ public:
     EchecModel(bool machine, QObject* object = nullptr);
     ~EchecModel();
     void initialiser();
-    array<std::array<Piece*, TAILLE_PIECES>, TAILLE_PIECES> get_pieces();
+    Piece* get_piece(int i, int j);
+    Pieces get_pieces() const;
     void selectionner_piece(int i, int j);
     void deplacer_piece(int i, int j);
     void manger_piece(int i, int j);
@@ -33,24 +33,24 @@ public:
 
 signals:
     void piece_selectionee();
-    void piece_deplacee(int i, int j, vector<Position> positions_mangeable, vector<Position> positions_non_mangeable);
-    void piece_promue(Position position_avant_promotion);
+    void piece_deplacee(std::vector<Position> positions);
     void piece_mangee(const Type& type);
     void roi_en_echec();
     void roi_en_echec_et_mat();
     void roi_echec_et_mat(Piece* piece);
     void choix_promotion(int i, int j);
+    void piece_promue(Piece* piece);
 
 private:
-    array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES> pieces_; // contient les pieces du joueur
+    Pieces pieces_; // contient les pieces du joueur
     vector<Position> deplacement_possibles_;
-    vector<Piece*> pieces_a_jouer_;
     Piece* piece_selectionnee_; // pointe vers une piece selectionnée
     Piece* ancienne_piece_selectionnee_; // pointe vers l'ancienne piece selectionnée
     Piece* roi_noir_;
     Piece* roi_blanc_;
     Couleur joueur_courant_;
     bool machine_;
+    std::unordered_map<string, vector<Position>> positions_cache_;
+    std::unordered_map<string, bool> echec_cache_;
 };
-
-#endif // ECHEC_MODEL_H
+#endif

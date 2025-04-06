@@ -1,13 +1,12 @@
 #include "fou.h"
 
-Fou::Fou(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
+Fou::Fou(int x, int y, Couleur couleur, EchecModel* model) : Piece(x, y, couleur, model) {
     image = (couleur == BLANC) ? FOU_BLANC : FOU_NOIR;
-    type = FOU;
 };
 
 Fou::~Fou(){};
 
-vector<Position> Fou::positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const {
+vector<Position> Fou::positions_possibles(const Pieces& pieces) const {
     int x = position.getX();
     int y = position.getY();
     vector<Position> positions;

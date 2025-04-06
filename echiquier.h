@@ -13,15 +13,20 @@
 #include <QButtonGroup>
 #include <QDialog>
 #include <QRadioButton>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include "case_echequier.h"
 #include "echec_model.h"
 
-typedef array<array<QPushButton*, TAILLE_ECHIQUIER>, TAILLE_ECHIQUIER> Tabechiquier;
+typedef array<array<CaseEchequier*, TAILLE_ECHIQUIER>, TAILLE_ECHIQUIER> Tabechiquier;
 
 class Echiquier : public QWidget
 {
     Q_OBJECT
 
 private:
+    QGraphicsScene* scene_;
+    QGraphicsView* view_;
     Tabechiquier tabechiquier_;
     QLabel* label_joueur_; // indiquant quel joueur doit jouer
     QMainWindow *parent_;
@@ -34,6 +39,7 @@ private:
 public:
     Echiquier(bool machine, QMainWindow *parent = nullptr);
     ~Echiquier();
+    void setupUi();
     void setup();
     void update_nbre_pieces_capturees(int index);
 
@@ -44,10 +50,9 @@ signals:
 public slots:
     void case_pressee(int i, int j);
     void afficher_deplacement_possibles();
-    void deplacer_piece(int i, int j, vector<Position> positions_mangeable, vector<Position> positions_non_mangeable);
+    void deplacer_piece(vector<Position> positions);
     void roi_en_echec();
     void choix_promotion(int i, int j);
-    void piece_promue(Position position_avant_promotion);
     void piece_mangee(const Type& type);
     void roi_en_echec_et_mat();
 };

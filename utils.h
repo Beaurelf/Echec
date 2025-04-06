@@ -1,18 +1,26 @@
 #ifndef UTILS_H
 #define UTILS_H
+
+#include "position.h"
 #include <string>
 #include <QString>
 
+class Piece;
+
 namespace Utils {
+
+    typedef  std::unordered_map<Position, Piece*, HashPosition> Pieces;
 
     enum Couleur {BLANC, NOIR};
 
     enum Type {SOLDAT, TOUR, CHEVALIER, FOU, REINE, ROI};
 
     const QString COULEUR_BLANCHE = "white";
-    const QString COULEUR_NOIR = "#AAAAAC";
+    const QString COULEUR_NOIR = "black";
+    const QString COULEUR_GRIS = "#AAAAAC";
     const QString COULEUR_ROUGE = "#D32527";
-    const QString COULEUR_BELGE = "#FFDB75";
+    const QString COULEUR_BELGE = "#CCAD78";
+    const QString COULEUR_MARRON = "#7E5430";
 
 
     const std::string ROI_BLANC = ":/images/img/roi_blanc.jpg";

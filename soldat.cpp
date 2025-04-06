@@ -1,23 +1,22 @@
 #include "soldat.h"
 
-Soldat::Soldat(int x, int y, Couleur couleur, int x_init, int y_init) : Piece(x, y, couleur), x_init(x_init), y_init(y_init) {
+Soldat::Soldat(int x, int y, Couleur couleur, EchecModel* model) : Piece(x, y, couleur, model), y_init(y) {
     image = (couleur == BLANC) ? PION_BLANC : PION_NOIR;
-    type = SOLDAT;
 };
 
 Soldat::~Soldat(){};
 
-bool Soldat::position_valide(const Position& position,const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const{
-    return not ((pieces[position.getY()][position.getX()] != nullptr) and
-            (position.egale(pieces[position.getY()][position.getX()]->get_position())));
+bool Soldat::position_valide(const Position& position,const Pieces& pieces) const{
+    auto it = pieces.find(position);
+    if(it == pieces.end()) return false;
+    return !((it->second != nullptr) && (position == it->second->get_position()));
 }
 
-int Soldat::get_y_init() const
-{
-    return y_init;
+int Soldat::get_y_init() const {
+    return position_initiale.getY();
 }
 
-vector<Position> Soldat::positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const{
+vector<Position> Soldat::positions_possibles(const Pieces& pieces) const{
     int x(position.getX());
     int y(position.getY());
     vector<Position> positions;
@@ -26,7 +25,7 @@ vector<Position> Soldat::positions_possibles(const array<array<Piece*, TAILLE_PI
     Position pos(x, y + direction);
     if(this->position_valide(pos, pieces)){
         positions.push_back(pos);
-        if(y == y_init){
+        if(position_initiale.getY() == y){
             Position pos(x, y + 2 * direction);
             if(this->position_valide(pos, pieces)){
                 positions.push_back(pos);
@@ -36,15 +35,9 @@ vector<Position> Soldat::positions_possibles(const array<array<Piece*, TAILLE_PI
 
     vector<Position> positionsDiagonales = {{x - 1, y + direction}, {x + 1, y + direction}};
     for (const auto& pos : positionsDiagonales) {
-        for (auto& p : pieces) {
-            for (auto& piece : p) {
-                if((piece!=nullptr) and (piece->get_couleur() != this->get_couleur())){
-                    if(pos.egale(piece->get_position())){
-                        positions.push_back(pos);
-                    }
-                }
-            }
-        }
+        auto it = pieces.find(pos);
+        if(it != pieces.end())
+            if(it->second != nullptr && it->second->get_couleur() != get_couleur()) positions.push_back(pos);
     }
 
     return positions;

@@ -1,5 +1,12 @@
 #include "echec_model.h"
 #include "algorithm"
+#include "soldat.h"
+#include "chevalier.h"
+#include "fou.h"
+#include "roi.h"
+#include "reine.h"
+#include "tour.h"
+
 
 EchecModel::EchecModel(bool machine, QObject* object) : QObject(object), machine_(machine)
 {
@@ -16,49 +23,58 @@ void EchecModel::initialiser()
 {
     piece_selectionnee_ = nullptr;
     ancienne_piece_selectionnee_ = nullptr;
-    // initialisation des pieces avec nullptr
-    for (size_t i(0); i < pieces_.size(); ++i) {
-        for (size_t j(0); j < pieces_[i].size(); ++j) {
-            pieces_[i][j] = nullptr;
+
+    for (int y = 0; y < 8; ++y) {
+        for (int x = 0; x < 8; ++x) {
+            pieces_[Position(x, y)] = nullptr;
         }
     }
 
-    //placement des pions
-    for (size_t i(0); i < 8; ++i) {
-        pieces_[1][i] = new Soldat(i, 1, NOIR, i, 1);
-        pieces_[6][i] = new Soldat(i, 6, BLANC, i, 6);
+    // Placement des pions
+    for (size_t i = 0; i < 8; ++i) {
+        pieces_[Position(i, 1)] = new Soldat(i, 1, NOIR, this);
+        pieces_[Position(i, 6)] = new Soldat(i, 6, BLANC, this);
     }
 
-    pieces_[0][0] = new Tour(0, 0, NOIR);
-    pieces_[0][7] = new Tour(7, 0, NOIR);
+    // Tours
+    pieces_[Position(0, 0)] = new Tour(0, 0, NOIR, this);
+    pieces_[Position(7, 0)] = new Tour(7, 0, NOIR, this);
+    pieces_[Position(0, 7)] = new Tour(0, 7, BLANC, this);
+    pieces_[Position(7, 7)] = new Tour(7, 7, BLANC, this);
 
-    pieces_[0][1] = new Chevalier(1, 0, NOIR);
-    pieces_[0][6] = new Chevalier(6, 0, NOIR);
+    // Cavaliers
+    pieces_[Position(1, 0)] = new Chevalier(1, 0, NOIR, this);
+    pieces_[Position(6, 0)] = new Chevalier(6, 0, NOIR, this);
+    pieces_[Position(1, 7)] = new Chevalier(1, 7, BLANC, this);
+    pieces_[Position(6, 7)] = new Chevalier(6, 7, BLANC, this);
 
-    pieces_[0][2] = new Fou(2, 0, NOIR);
-    pieces_[0][5] = new Fou(5, 0, NOIR);
+    // Fous
+    pieces_[Position(2, 0)] = new Fou(2, 0, NOIR, this);
+    pieces_[Position(5, 0)] = new Fou(5, 0, NOIR, this);
+    pieces_[Position(2, 7)] = new Fou(2, 7, BLANC, this);
+    pieces_[Position(5, 7)] = new Fou(5, 7, BLANC, this);
 
-    pieces_[0][3] = new Reine(3, 0, NOIR);
-    pieces_[0][4] = new Roi(4, 0, NOIR);
-    roi_noir_ = pieces_[0][4];
+    // Reines
+    pieces_[Position(3, 0)] = new Reine(3, 0, NOIR, this);
+    pieces_[Position(3, 7)] = new Reine(3, 7, BLANC, this);
 
-    pieces_[7][0] = new Tour(0, 7, BLANC);
-    pieces_[7][7] = new Tour(7, 7, BLANC);
+    // Rois
+    pieces_[Position(4, 0)] = new Roi(4, 0, NOIR, this);
+    roi_noir_ = pieces_[Position(4, 0)];
 
-    pieces_[7][1] = new Chevalier(1, 7, BLANC);
-    pieces_[7][6] = new Chevalier(6, 7, BLANC);
-
-    pieces_[7][2] = new Fou(2, 7, BLANC);
-    pieces_[7][5] = new Fou(5, 7, BLANC);
-
-    pieces_[7][3] = new Reine(3, 7, BLANC);
-    pieces_[7][4] = new Roi(4, 7, BLANC);
-    roi_blanc_ = pieces_[7][4];
+    pieces_[Position(4, 7)] = new Roi(4, 7, BLANC, this);
+    roi_blanc_ = pieces_[Position(4, 7)];
 }
 
-std::array<std::array<Piece*, TAILLE_PIECES>, TAILLE_PIECES> EchecModel::get_pieces()
-{
+Pieces EchecModel::get_pieces() const {
     return pieces_;
+}
+
+Piece* EchecModel::get_piece(int i, int j)
+{
+    auto it = pieces_.find(Position(i, j));
+    if(it == pieces_.end()) return nullptr;
+    return it->second;
 }
 
 Piece* EchecModel::get_piece_selectionnee()
@@ -83,12 +99,20 @@ vector<Position> EchecModel::ancien_deplacement_possibles()
 
 bool EchecModel::deplacement_met_en_echec(Piece* piece, const Position& pos)
 {
-    piece->se_deplacer(pos.getX(), pos.getY(), pieces_);
-    Piece* piece_pos = pieces_[pos.getY()][pos.getX()];
-    pieces_[pos.getY()][pos.getX()] = piece; // on simule le deplacement de la piece
+    string cache_key = piece->get_position().to_string() + ">" + pos.to_string();
+
+    // Vérifier le cache d'abord
+    auto cache_it = echec_cache_.find(cache_key);
+    if (cache_it != echec_cache_.end()) {
+        return cache_it->second;
+    }
+    piece->se_deplacer(pos, pieces_);
+    Piece* piece_pos = pieces_[pos];
+    pieces_[pos] = piece; // on simule le deplacement de la piece
     bool resultat = est_en_echec();
-    pieces_[pos.getY()][pos.getX()] = piece_pos; // on reinitialise si c'etait un pointeur nul
+    pieces_[pos] = piece_pos; // on reinitialise si c'etait un pointeur nul
     piece->retour_position();
+    echec_cache_[cache_key] = resultat;
     return resultat;
 }
 
@@ -97,74 +121,83 @@ void EchecModel::selectionner_piece(int i, int j)
     deplacement_possibles_.clear();
     if(piece_selectionnee_ != nullptr)
         ancienne_piece_selectionnee_ = piece_selectionnee_;
-    piece_selectionnee_ = pieces_[i][j];
-    deplacement_possibles_ = piece_selectionnee_->positions_possibles(pieces_);
-    // enlevement les deplacements mettant le roi en echec
-    auto it = remove_if(deplacement_possibles_.begin(), deplacement_possibles_.end(), [&](const Position& pos){
-        return deplacement_met_en_echec(piece_selectionnee_, pos);
-    });
-    deplacement_possibles_.erase(it, deplacement_possibles_.end());
+    piece_selectionnee_ = get_piece(i, j);
+    // Vérifier si nous avons des mouvements en cache pour cette pièce
+    Position pos = piece_selectionnee_->get_position();
+    string cache_key = pos.to_string() + "_" + std::to_string(joueur_courant_ == BLANC ? 1 : 0);
+
+    auto cache_it = positions_cache_.find(cache_key);
+    if (cache_it != positions_cache_.end()) {
+        deplacement_possibles_ = cache_it->second;
+    }else{
+        deplacement_possibles_ = piece_selectionnee_->positions_possibles(pieces_);
+        // enlevement les deplacements mettant le roi en echec
+        auto it = remove_if(deplacement_possibles_.begin(), deplacement_possibles_.end(), [&](const Position& pos){
+            return deplacement_met_en_echec(piece_selectionnee_, pos);
+        });
+        deplacement_possibles_.erase(it, deplacement_possibles_.end());
+        positions_cache_[cache_key] = deplacement_possibles_;
+    }
     emit piece_selectionee();
 }
 
 void EchecModel::set_promotion(const Type& type, int x, int y)
 {
+    delete piece_selectionnee_;
     switch (type) {
     case Type::CHEVALIER:
-        piece_selectionnee_ = new Chevalier(x, y, joueur_courant_);
+        piece_selectionnee_ = new Chevalier(x, y, joueur_courant_, this);
         break;
     case Type::REINE:
-        piece_selectionnee_ = new Reine(x, y, joueur_courant_);
+        piece_selectionnee_ = new Reine(x, y, joueur_courant_, this);
         break;
     case Type::FOU:
-        piece_selectionnee_ = new Fou(x, y, joueur_courant_);
+        piece_selectionnee_ = new Fou(x, y, joueur_courant_, this);
         break;
     case Type::TOUR:
-        piece_selectionnee_ = new Tour(x, y, joueur_courant_);
+        piece_selectionnee_ = new Tour(x, y, joueur_courant_, this);
         break;
     default:
         break;
     }
+    emit piece_promue(piece_selectionnee_);
 }
 
 void EchecModel::deplacer_piece(int i, int j)
 {
+    Position position(i, j);
     // vérifier si deplacement ne cause pas l'echec du roi
     auto it = find_if(deplacement_possibles_.begin(), deplacement_possibles_.end(), [&](const Position& pos){
-        return pos.egale(j, i);
+        return pos == position;
     });
 
     if(it != deplacement_possibles_.end())
     {
-        // converser postion ou on peut manger pour enlever la couleur rouge dans la vue
-        vector<Position> positions_mangeable;
-        vector<Position> positions_non_mangeable;
-        for_each(deplacement_possibles_.begin(), deplacement_possibles_.end(), [&](const Position& pos){
-            if(piece_selectionnee_->peut_manger(pos, pieces_))
-                positions_mangeable.push_back(pos);
-            else
-                positions_non_mangeable.push_back(pos);
-        });
-        pieces_[piece_selectionnee_->get_position().getY()][piece_selectionnee_->get_position().getX()] = nullptr;
-        piece_selectionnee_->se_deplacer(j, i, pieces_);
+        // S'il y'a une piece alors on la mange
+        if(get_piece(i, j) != nullptr)
+            manger_piece(i, j);
+        // converser postion ou on pouvait se déplacer pour enlever les marqueurs dans la vue
+        vector<Position> positions = deplacement_possibles_;
+        pieces_[piece_selectionnee_->get_position()] = nullptr;
+        piece_selectionnee_->se_deplacer(position, pieces_);
 
-        if(piece_selectionnee_->get_type() == SOLDAT)
+        if(auto soldat = dynamic_cast<Soldat*>(piece_selectionnee_))
         {
-            if((piece_selectionnee_->get_y_init() == 1 and i == 7) or (piece_selectionnee_->get_y_init() == 6 and i == 0))
+            if((soldat->get_y_init() == 1 && j == 7) || (soldat->get_y_init() == 6 && j == 0))
             {
-                Position position_avant_promotion = piece_selectionnee_->get_ancienne_position();
-                delete piece_selectionnee_;
                 emit choix_promotion(i, j);
-                emit piece_promue(position_avant_promotion);
             }
         }
 
-        delete pieces_[i][j];
-        pieces_[i][j] = piece_selectionnee_;
+        delete pieces_[position];
+        pieces_[position] = piece_selectionnee_;
         piece_selectionnee_ = nullptr;
         ancienne_piece_selectionnee_ = nullptr;
+        positions_cache_.clear();
+        echec_cache_.clear();
         joueur_courant_ = joueur_courant_ == BLANC ? NOIR : BLANC;
-        emit piece_deplacee(i, j, positions_mangeable, positions_non_mangeable);
+        pieces_[position]->mise_a_jour_rendu();
+        emit piece_deplacee(positions);
         if(est_en_echec())
         {
             if(echec_et_mat())
@@ -173,25 +206,32 @@ void EchecModel::deplacer_piece(int i, int j)
                 emit roi_en_echec();
         }
     }
+    else{
+        piece_selectionnee_->mise_a_jour_rendu();
+    }
+}
+
+Type getType(Piece* p){
+    if(dynamic_cast<Soldat*>(p)) return SOLDAT;
+    if(dynamic_cast<Chevalier*>(p)) return CHEVALIER;
+    if(dynamic_cast<Roi*>(p)) return ROI;
+    if(dynamic_cast<Reine*>(p)) return REINE;
+    if(dynamic_cast<Fou*>(p)) return FOU;
+    return TOUR;
 }
 
 void EchecModel::manger_piece(int i, int j)
 {
-    Type type = pieces_[i][j]->get_type();
+    Type type = getType(pieces_[Position(i, j)]);
     emit piece_mangee(type);
-    deplacer_piece(i, j);
 }
 
 bool EchecModel::est_en_echec() const
 {
     Piece* roi = (joueur_courant_ == BLANC) ? roi_blanc_ : roi_noir_;
-    for (size_t i(0); i < pieces_.size(); ++i) {
-        for (size_t j(0); j < pieces_[i].size(); ++j) {
-            if(pieces_[i][j] != nullptr && pieces_[i][j]->get_couleur() != joueur_courant_)
-            {
-                if(pieces_[i][j]->deplacement_valide(roi->get_position().getX(), roi->get_position().getY(), pieces_))
-                    return true;
-            }
+    for(auto& p : pieces_){
+        if(p.second != nullptr && p.second->get_couleur() != joueur_courant_){
+            if(p.second->deplacement_valide(roi->get_position(), pieces_)) return true;
         }
     }
     return false;
@@ -199,16 +239,11 @@ bool EchecModel::est_en_echec() const
 
 bool EchecModel::echec_et_mat()
 {
-    for (size_t i(0); i < pieces_.size(); ++i) {
-        for (size_t j(0); j < pieces_[i].size(); ++j) {
-            if(pieces_[i][j] != nullptr && pieces_[i][j]->get_couleur() == joueur_courant_)
-            {
-                vector<Position> deplacement_possibles = pieces_[i][j]->positions_possibles(pieces_);
-                auto it = remove_if(deplacement_possibles.begin(), deplacement_possibles.end(), [&](const Position& pos){
-                    return deplacement_met_en_echec(pieces_[i][j], pos);
-                });
-                deplacement_possibles.erase(it, deplacement_possibles.end());
-                if (!deplacement_possibles.empty())
+    for(auto& p : pieces_){
+        if(p.second != nullptr && p.second->get_couleur() != joueur_courant_){
+            vector<Position> deplacement_possibles = p.second->positions_possibles(pieces_);
+            for (const auto& deplacement : deplacement_possibles) {
+                if (!deplacement_met_en_echec(p.second, deplacement))
                     return false;
             }
         }
@@ -223,11 +258,9 @@ EchecModel::~EchecModel()
     piece_selectionnee_ = nullptr;
     ancienne_piece_selectionnee_ = nullptr;
 
-    for (size_t i(0); i < pieces_.size(); ++i) {
-        for (size_t j(0); j < pieces_[i].size(); ++j) {
-            delete pieces_[i][j];
-            pieces_[i][j] = nullptr;
-        }
+    for (auto& p: pieces_) {
+        delete p.second;
+        p.second = nullptr;
     }
 
 }

@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    case_echequier.cpp \
     echec_model.cpp \
     echiquier.cpp \
     home.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
     chevalier.cpp
 
 HEADERS += \
+    case_echequier.h \
     echec_model.h \
     echiquier.h \
     game.h \
@@ -40,7 +42,7 @@ HEADERS += \
 
 TRANSLATIONS += \
     Echecs_fr_FR.ts
-CONFIG += lrelease
+CONFIG += debug
 CONFIG += embed_translations
 
 # Default rules for deployment.

@@ -17,12 +17,12 @@ void Position::modifier_position(int a, int b){
     y = b;
 }
 
-bool Position::egale(const Position& autre) const
+bool Position::operator==(const Position& autre) const
 {
     return (this->getX() == autre.getX()) && (this->getY() == autre.getY());
 }
 
-bool Position::egale(int x, int y) const
-{
-    return (this->getX() == x) && (this->getY() == y);
+std::string Position::to_string() const{
+    return std::to_string(x) + "," + std::to_string(y);
 }
+

@@ -7,9 +7,9 @@ using namespace std;
 
 class Roi: public Piece{
 public:
-    Roi(int x, int y, Couleur couleur);
+    Roi(int x, int y, Couleur couleur, EchecModel* model);
     ~Roi();
-    vector<Position> positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const override;
+    vector<Position> positions_possibles(const Pieces& pieces) const override;
 };
 
 #endif

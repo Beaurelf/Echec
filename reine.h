@@ -2,7 +2,6 @@
 #define _REINE_
 
 #include "fou.h"
-#include "piece.h"
 #include "tour.h"
 #include <vector>
 
@@ -10,9 +9,9 @@ using namespace std;
 
 class Reine: public Tour, public Fou{
 public:
-    Reine(int x, int y, Couleur couleur);
+    Reine(int x, int y, Couleur couleur, EchecModel* model);
     ~Reine();
-    vector<Position> positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const override;
+    vector<Position> positions_possibles(const Pieces& pieces) const override;
 };
 
 #endif

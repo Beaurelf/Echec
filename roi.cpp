@@ -1,13 +1,12 @@
 #include "roi.h"
 
-Roi::Roi(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
+Roi::Roi(int x, int y, Couleur couleur, EchecModel* model) : Piece(x, y, couleur, model) {
     image = (couleur == BLANC) ? ROI_BLANC : ROI_NOIR;
-    type = ROI;
 };
 
 Roi::~Roi(){};
 
-vector<Position> Roi::positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const {
+vector<Position> Roi::positions_possibles(const Pieces& pieces) const {
     int x = position.getX();
     int y = position.getY();
     vector<Position> positions;

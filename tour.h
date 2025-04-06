@@ -8,9 +8,9 @@ using namespace std;
 
 class Tour: public virtual Piece{
 public:
-    Tour(int x, int y, Couleur couleur);
+    Tour(int x, int y, Couleur couleur, EchecModel* model);
     ~Tour();
-    vector<Position> positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const override;
+    vector<Position> positions_possibles(const Pieces& pieces) const override;
 };
 
 #endif

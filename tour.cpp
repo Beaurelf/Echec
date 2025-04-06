@@ -1,13 +1,12 @@
 #include "tour.h"
 
-Tour::Tour(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
+Tour::Tour(int x, int y, Couleur couleur, EchecModel* model) : Piece(x, y, couleur, model) {
     image = (couleur == BLANC) ? TOUR_BLANC : TOUR_NOIR;
-    type = TOUR;
 };
 
 Tour::~Tour(){};
 
-vector<Position> Tour::positions_possibles(const array<array<Piece*, TAILLE_PIECES>, TAILLE_PIECES>& pieces) const {
+vector<Position> Tour::positions_possibles(const Pieces& pieces) const {
     int x = position.getX();
     int y = position.getY();
     vector<Position> positions;
