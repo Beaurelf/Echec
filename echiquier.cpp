@@ -68,6 +68,7 @@ void Echiquier::setupUi() {
             tabechiquier_[i][j] = new CaseEchequier(i, j, couleur);
             couleur = couleur == COULEUR_BLANCHE ? COULEUR_GRIS : COULEUR_BLANCHE;
             scene_->addItem(tabechiquier_[i][j]);
+            connect(tabechiquier_[i][j], &CaseEchequier::case_pressee, this, &Echiquier::case_pressee);
             Piece* piece = echec_model_->get_piece(i ,j);
             if(piece != nullptr){
                 connect(piece, &Piece::piece_appuye, this, &Echiquier::case_pressee);

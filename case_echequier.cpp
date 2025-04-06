@@ -3,7 +3,7 @@
 
 using namespace Utils;
 
-CaseEchequier::CaseEchequier(int x, int y, QString c, QGraphicsItem* p): QGraphicsItem(p), couleur_(c), marqueur_actif_(false) {
+CaseEchequier::CaseEchequier(int x, int y, QString c, QGraphicsObject* p): QGraphicsObject(p), couleur_(c), marqueur_actif_(false) {
     setPos(x * TAILLE_CASE_ECHIQUIER, y * TAILLE_CASE_ECHIQUIER);
 }
 
@@ -48,5 +48,13 @@ void CaseEchequier::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
             painter->drawEllipse(centre, TAILLE_CASE_ECHIQUIER / 5, TAILLE_CASE_ECHIQUIER / 5);
         }
     }
+}
+
+void CaseEchequier::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    QGraphicsObject::mousePressEvent(event);
+    QPointF scenePos = event->scenePos();
+    int x = static_cast<int>(scenePos.x() / TAILLE_CASE_ECHIQUIER);
+    int y = static_cast<int>(scenePos.y() / TAILLE_CASE_ECHIQUIER);
+    emit case_pressee(x, y);
 }
 
