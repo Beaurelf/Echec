@@ -13,6 +13,7 @@
 #include <QButtonGroup>
 #include <QDialog>
 #include <QRadioButton>
+#include <QSoundEffect>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include "case_echequier.h"
@@ -36,6 +37,8 @@ private:
     QVBoxLayout* pieces_blanches_mangees_;
     vector<QLabel*> pieces_noires_capturees_;
     vector<QLabel*> pieces_blanches_capturees_;
+    QSoundEffect sound_;
+
 public:
     Echiquier(bool machine, QMainWindow *parent = nullptr);
     ~Echiquier();

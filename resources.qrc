@@ -17,4 +17,7 @@
         <file>img/cursor.png</file>
         <file>img/app_icon.png</file>
     </qresource>
+    <qresource prefix="/audios">
+        <file>audio/audio_deplacement.wav</file>
+    </qresource>
 </RCC>

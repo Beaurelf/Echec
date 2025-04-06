@@ -40,6 +40,8 @@ namespace Utils {
     const QString CURSOR = ":/images/img/cursor.png";
     const QString APP_ICON = ":/images/img/app_icon.png";
 
+    const QString AUDIO_DEPLACEMENT = "qrc:/audios/audio/audio_deplacement.wav";
+
     const int TAILLE_CASE_ECHIQUIER = 80;
     const int TAILLE_ICON_CASE_ECHIQUIER = 60;
     const int TAILLE_CURSOR = 60;

@@ -1,7 +1,6 @@
 #include "utils.h"
 #include "echiquier.h"
 
-
 Echiquier::Echiquier(bool machine, QMainWindow *parent)
     : QWidget(parent), parent_(parent), machine_(machine)
 {
@@ -100,6 +99,8 @@ void Echiquier::setupUi() {
 void Echiquier::setup()
 {
     setupUi();
+    sound_.setSource(QUrl("qrc:/audios/audio/audio_deplacement.wav"));
+    sound_.setVolume(0.5f);
     connect(echec_model_, &EchecModel::piece_selectionee, this, &Echiquier::afficher_deplacement_possibles);
     connect(echec_model_, &EchecModel::piece_deplacee, this, &Echiquier::deplacer_piece);
     connect(echec_model_, &EchecModel::roi_en_echec, this, &Echiquier::roi_en_echec);
@@ -107,6 +108,8 @@ void Echiquier::setup()
     connect(echec_model_, &EchecModel::choix_promotion, this, &Echiquier::choix_promotion);
     connect(echec_model_, &EchecModel::piece_mangee, this, &Echiquier::piece_mangee);
     connect(echec_model_, &EchecModel::piece_promue, this, [this](Piece* piece){
+        connect(piece, &Piece::piece_appuye, this, &Echiquier::case_pressee);
+        connect(piece, &Piece::piece_relache, this, &Echiquier::case_pressee);
         scene_->addItem(piece);
     });
 }
@@ -212,6 +215,7 @@ void Echiquier::choix_promotion(int i, int j)
 
 void Echiquier::deplacer_piece(vector<Position> positions)
 {
+    sound_.play();
     // on remet les couleurs initiales
     for (auto& position : positions)
         tabechiquier_[position.getX()][position.getY()]->retirer_marqueur();

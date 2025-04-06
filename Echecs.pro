@@ -1,4 +1,9 @@
-QT       += core gui
+QT       += core gui multimedia
+
+win32 {
+    LIBS += -LC:/FFmpeg/lib -lavcodec -lavformat -lavutil -lswscale
+    INCLUDEPATH += C:/FFmpeg/include
+}
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

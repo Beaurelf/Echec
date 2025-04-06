@@ -59,7 +59,7 @@ Home::Home(QMainWindow *parent) :
         "background-position: center;"
         "}"
         "QWidget#OpacityWidget{"
-        "background: rgba(255, 255, 255, 0.25); "
+        "background: rgba(0, 0, 0, 0.75); "
         "border: 1px solid rgba(255, 255, 255, 0.35);"
         "border-radius: 20px; "
         "}"
