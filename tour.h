@@ -3,14 +3,15 @@
 
 #include "piece.h"
 #include <vector>
-#include <QDebug>
+
 using namespace std;
 
 class Tour: public virtual Piece{
 public:
-    Tour(int x, int y, Couleur couleur, EchecModel* model);
+    Tour(int x, int y, Couleur couleur);
     ~Tour();
     vector<Position> positions_possibles(const Pieces& pieces) const override;
+    virtual Type get_type() const override;
 };
 
 #endif

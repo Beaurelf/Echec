@@ -1,10 +1,14 @@
 #include "chevalier.h"
 
-Chevalier::Chevalier(int x, int y, Couleur couleur, EchecModel* model) : Piece(x, y, couleur, model) {
+Chevalier::Chevalier(int x, int y, Couleur couleur) : Piece(x, y, couleur) {
     image = (couleur == BLANC) ? CHEVALIER_BLANC : CHEVALIER_NOIR;
 };
 
 Chevalier::~Chevalier(){};
+
+Type Chevalier::get_type() const {
+    return CHEVALIER;
+}
 
 vector<Position> Chevalier::positions_possibles(const Pieces& pieces) const {
     int x = position.getX();

@@ -18,6 +18,7 @@
 #include <QGraphicsView>
 #include "case_echequier.h"
 #include "echec_model.h"
+#include "pieceitem.h"
 
 typedef array<array<CaseEchequier*, TAILLE_ECHIQUIER>, TAILLE_ECHIQUIER> Tabechiquier;
 
@@ -37,7 +38,9 @@ private:
     QVBoxLayout* pieces_blanches_mangees_;
     vector<QLabel*> pieces_noires_capturees_;
     vector<QLabel*> pieces_blanches_capturees_;
+    unordered_map<Piece*, PieceItem*> pieces_;
     QSoundEffect sound_;
+    void ajouter_piece(Piece* piece);
 
 public:
     Echiquier(bool machine, QMainWindow *parent = nullptr);
@@ -53,10 +56,10 @@ signals:
 public slots:
     void case_pressee(int i, int j);
     void afficher_deplacement_possibles();
-    void deplacer_piece(vector<Position> positions);
+    void deplacer_piece(Piece* piece, vector<Position> positions);
     void roi_en_echec();
     void choix_promotion(int i, int j);
-    void piece_mangee(const Type& type);
+    void piece_mangee(Piece* piece_mangee);
     void roi_en_echec_et_mat();
 };
 

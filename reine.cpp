@@ -1,12 +1,16 @@
 #include "reine.h"
 
-Reine::Reine(int x, int y, Couleur couleur, EchecModel* model) :
-    Piece(x, y, couleur, model), Tour(x, y, couleur, model), Fou(x, y, couleur, model)
+Reine::Reine(int x, int y, Couleur couleur) :
+    Piece(x, y, couleur), Tour(x, y, couleur), Fou(x, y, couleur)
 {
     image = (couleur == BLANC) ? REINE_BLANC : REINE_NOIR;
 };
 
 Reine::~Reine(){};
+
+Type Reine::get_type() const {
+    return REINE;
+}
 
 vector<Position> Reine::positions_possibles(const Pieces& pieces) const {
     vector<Position> positions = Tour::positions_possibles(pieces);

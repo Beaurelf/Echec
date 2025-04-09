@@ -32,37 +32,37 @@ void EchecModel::initialiser()
 
     // Placement des pions
     for (size_t i = 0; i < 8; ++i) {
-        pieces_[Position(i, 1)] = new Soldat(i, 1, NOIR, this);
-        pieces_[Position(i, 6)] = new Soldat(i, 6, BLANC, this);
+        pieces_[Position(i, 1)] = new Soldat(i, 1, NOIR);
+        pieces_[Position(i, 6)] = new Soldat(i, 6, BLANC);
     }
 
     // Tours
-    pieces_[Position(0, 0)] = new Tour(0, 0, NOIR, this);
-    pieces_[Position(7, 0)] = new Tour(7, 0, NOIR, this);
-    pieces_[Position(0, 7)] = new Tour(0, 7, BLANC, this);
-    pieces_[Position(7, 7)] = new Tour(7, 7, BLANC, this);
+    pieces_[Position(0, 0)] = new Tour(0, 0, NOIR);
+    pieces_[Position(7, 0)] = new Tour(7, 0, NOIR);
+    pieces_[Position(0, 7)] = new Tour(0, 7, BLANC);
+    pieces_[Position(7, 7)] = new Tour(7, 7, BLANC);
 
     // Cavaliers
-    pieces_[Position(1, 0)] = new Chevalier(1, 0, NOIR, this);
-    pieces_[Position(6, 0)] = new Chevalier(6, 0, NOIR, this);
-    pieces_[Position(1, 7)] = new Chevalier(1, 7, BLANC, this);
-    pieces_[Position(6, 7)] = new Chevalier(6, 7, BLANC, this);
+    pieces_[Position(1, 0)] = new Chevalier(1, 0, NOIR);
+    pieces_[Position(6, 0)] = new Chevalier(6, 0, NOIR);
+    pieces_[Position(1, 7)] = new Chevalier(1, 7, BLANC);
+    pieces_[Position(6, 7)] = new Chevalier(6, 7, BLANC);
 
     // Fous
-    pieces_[Position(2, 0)] = new Fou(2, 0, NOIR, this);
-    pieces_[Position(5, 0)] = new Fou(5, 0, NOIR, this);
-    pieces_[Position(2, 7)] = new Fou(2, 7, BLANC, this);
-    pieces_[Position(5, 7)] = new Fou(5, 7, BLANC, this);
+    pieces_[Position(2, 0)] = new Fou(2, 0, NOIR);
+    pieces_[Position(5, 0)] = new Fou(5, 0, NOIR);
+    pieces_[Position(2, 7)] = new Fou(2, 7, BLANC);
+    pieces_[Position(5, 7)] = new Fou(5, 7, BLANC);
 
     // Reines
-    pieces_[Position(3, 0)] = new Reine(3, 0, NOIR, this);
-    pieces_[Position(3, 7)] = new Reine(3, 7, BLANC, this);
+    pieces_[Position(3, 0)] = new Reine(3, 0, NOIR);
+    pieces_[Position(3, 7)] = new Reine(3, 7, BLANC);
 
     // Rois
-    pieces_[Position(4, 0)] = new Roi(4, 0, NOIR, this);
+    pieces_[Position(4, 0)] = new Roi(4, 0, NOIR);
     roi_noir_ = pieces_[Position(4, 0)];
 
-    pieces_[Position(4, 7)] = new Roi(4, 7, BLANC, this);
+    pieces_[Position(4, 7)] = new Roi(4, 7, BLANC);
     roi_blanc_ = pieces_[Position(4, 7)];
 }
 
@@ -146,16 +146,16 @@ void EchecModel::set_promotion(const Type& type, int x, int y)
     delete piece_selectionnee_;
     switch (type) {
     case Type::CHEVALIER:
-        piece_selectionnee_ = new Chevalier(x, y, joueur_courant_, this);
+        piece_selectionnee_ = new Chevalier(x, y, joueur_courant_);
         break;
     case Type::REINE:
-        piece_selectionnee_ = new Reine(x, y, joueur_courant_, this);
+        piece_selectionnee_ = new Reine(x, y, joueur_courant_);
         break;
     case Type::FOU:
-        piece_selectionnee_ = new Fou(x, y, joueur_courant_, this);
+        piece_selectionnee_ = new Fou(x, y, joueur_courant_);
         break;
     case Type::TOUR:
-        piece_selectionnee_ = new Tour(x, y, joueur_courant_, this);
+        piece_selectionnee_ = new Tour(x, y, joueur_courant_);
         break;
     default:
         break;
@@ -191,13 +191,14 @@ void EchecModel::deplacer_piece(int i, int j)
 
         delete pieces_[position];
         pieces_[position] = piece_selectionnee_;
+
+        emit piece_deplacee(pieces_[position], positions);
+
         piece_selectionnee_ = nullptr;
         ancienne_piece_selectionnee_ = nullptr;
         positions_cache_.clear();
         echec_cache_.clear();
         joueur_courant_ = joueur_courant_ == BLANC ? NOIR : BLANC;
-        pieces_[position]->mise_a_jour_rendu();
-        emit piece_deplacee(positions);
         if(est_en_echec())
         {
             if(echec_et_mat())
@@ -206,24 +207,11 @@ void EchecModel::deplacer_piece(int i, int j)
                 emit roi_en_echec();
         }
     }
-    else{
-        piece_selectionnee_->mise_a_jour_rendu();
-    }
-}
-
-Type getType(Piece* p){
-    if(dynamic_cast<Soldat*>(p)) return SOLDAT;
-    if(dynamic_cast<Chevalier*>(p)) return CHEVALIER;
-    if(dynamic_cast<Roi*>(p)) return ROI;
-    if(dynamic_cast<Reine*>(p)) return REINE;
-    if(dynamic_cast<Fou*>(p)) return FOU;
-    return TOUR;
 }
 
 void EchecModel::manger_piece(int i, int j)
 {
-    Type type = getType(pieces_[Position(i, j)]);
-    emit piece_mangee(type);
+    emit piece_mangee(pieces_[Position(i, j)]);
 }
 
 bool EchecModel::est_en_echec() const

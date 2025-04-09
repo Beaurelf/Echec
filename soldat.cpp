@@ -1,15 +1,13 @@
 #include "soldat.h"
 
-Soldat::Soldat(int x, int y, Couleur couleur, EchecModel* model) : Piece(x, y, couleur, model), y_init(y) {
+Soldat::Soldat(int x, int y, Couleur couleur) : Piece(x, y, couleur), y_init(y) {
     image = (couleur == BLANC) ? PION_BLANC : PION_NOIR;
 };
 
 Soldat::~Soldat(){};
 
-bool Soldat::position_valide(const Position& position,const Pieces& pieces) const{
-    auto it = pieces.find(position);
-    if(it == pieces.end()) return false;
-    return !((it->second != nullptr) && (position == it->second->get_position()));
+Type Soldat::get_type() const {
+    return SOLDAT;
 }
 
 int Soldat::get_y_init() const {
@@ -23,11 +21,13 @@ vector<Position> Soldat::positions_possibles(const Pieces& pieces) const{
     int direction = (couleur == NOIR) ? 1 : -1;
 
     Position pos(x, y + direction);
-    if(this->position_valide(pos, pieces)){
+    auto it = pieces.find(pos);
+    if(this->position_valide(pos, pieces) && it->second == nullptr){
         positions.push_back(pos);
+        it = pieces.find(pos);
         if(position_initiale.getY() == y){
             Position pos(x, y + 2 * direction);
-            if(this->position_valide(pos, pieces)){
+            if(this->position_valide(pos, pieces) && it->second == nullptr){
                 positions.push_back(pos);
             }
         }

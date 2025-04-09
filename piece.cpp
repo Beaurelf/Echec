@@ -1,61 +1,8 @@
 #include "piece.h"
-#include "echec_model.h"
 #include <string>
 
-Piece::Piece(int x, int y, Couleur couleur, EchecModel* model, QGraphicsObject *parent) :
-    QGraphicsObject(parent), position(x, y), position_initiale(x, y), ancienne_position(x, y), couleur(couleur), echec_model_(model)
-{
-    setFlag(QGraphicsItem::ItemIsMovable);
-    setAcceptHoverEvents(true);
-    setZValue(1);
-    setPos(x * TAILLE_CASE_ECHIQUIER, y * TAILLE_CASE_ECHIQUIER);
-}
-
-QRectF Piece::boundingRect() const {
-    return QRectF(0, 0, TAILLE_CASE_ECHIQUIER, TAILLE_CASE_ECHIQUIER);
-}
-
-void Piece::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
-    qreal iconX = (TAILLE_CASE_ECHIQUIER - TAILLE_ICON_CASE_ECHIQUIER) / 2;
-    qreal iconY = (TAILLE_CASE_ECHIQUIER - TAILLE_ICON_CASE_ECHIQUIER) / 2;
-    QPixmap icon(QString::fromStdString(image));
-    painter->drawPixmap(iconX, iconY, TAILLE_ICON_CASE_ECHIQUIER, TAILLE_ICON_CASE_ECHIQUIER, icon);
-}
-
-void Piece::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    if(echec_model_ && echec_model_->get_joueur_courant() != couleur){
-        event->ignore();
-        return;
-    }
-    QGraphicsObject::mousePressEvent(event);
-    setCursor(Qt::ClosedHandCursor);
-    QPointF scenePos = event->scenePos();
-    int x = static_cast<int>(scenePos.x() / TAILLE_CASE_ECHIQUIER);
-    int y = static_cast<int>(scenePos.y() / TAILLE_CASE_ECHIQUIER);
-    emit piece_appuye(x, y);
-}
-
-void Piece::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-    if(echec_model_ && echec_model_->get_joueur_courant() != couleur){
-        event->ignore();
-        return;
-    }
-    QGraphicsObject::mouseReleaseEvent(event);
-    setCursor(Qt::OpenHandCursor);
-    QPointF scenePos = event->scenePos();
-    int x = static_cast<int>(scenePos.x() / TAILLE_CASE_ECHIQUIER);
-    int y = static_cast<int>(scenePos.y() / TAILLE_CASE_ECHIQUIER);
-    if(position == Position(x, y)) {
-        mise_a_jour_rendu();
-        return;
-    }
-    emit piece_relache(x, y);
-}
-
-void Piece::mise_a_jour_rendu() {
-    setPos(position.getX() * TAILLE_CASE_ECHIQUIER, position.getY() * TAILLE_CASE_ECHIQUIER);
-    update();
-}
+Piece::Piece(int x, int y, Couleur couleur) :
+    position(x, y), position_initiale(x, y), ancienne_position(x, y), couleur(couleur){}
 
 Position Piece::get_position() const{
     return position;

@@ -69,11 +69,7 @@ void Echiquier::setupUi() {
             scene_->addItem(tabechiquier_[i][j]);
             connect(tabechiquier_[i][j], &CaseEchequier::case_pressee, this, &Echiquier::case_pressee);
             Piece* piece = echec_model_->get_piece(i ,j);
-            if(piece != nullptr){
-                connect(piece, &Piece::piece_appuye, this, &Echiquier::case_pressee);
-                connect(piece, &Piece::piece_relache, this, &Echiquier::case_pressee);
-                scene_->addItem(piece);
-            }
+            ajouter_piece(piece);
         }
         couleur = couleur == COULEUR_BLANCHE ? COULEUR_GRIS : COULEUR_BLANCHE;
     }
@@ -99,7 +95,7 @@ void Echiquier::setupUi() {
 void Echiquier::setup()
 {
     setupUi();
-    sound_.setSource(QUrl("qrc:/audios/audio/audio_deplacement.wav"));
+    sound_.setSource(QUrl(AUDIO_DEPLACEMENT));
     sound_.setVolume(0.5f);
     connect(echec_model_, &EchecModel::piece_selectionee, this, &Echiquier::afficher_deplacement_possibles);
     connect(echec_model_, &EchecModel::piece_deplacee, this, &Echiquier::deplacer_piece);
@@ -108,10 +104,17 @@ void Echiquier::setup()
     connect(echec_model_, &EchecModel::choix_promotion, this, &Echiquier::choix_promotion);
     connect(echec_model_, &EchecModel::piece_mangee, this, &Echiquier::piece_mangee);
     connect(echec_model_, &EchecModel::piece_promue, this, [this](Piece* piece){
-        connect(piece, &Piece::piece_appuye, this, &Echiquier::case_pressee);
-        connect(piece, &Piece::piece_relache, this, &Echiquier::case_pressee);
-        scene_->addItem(piece);
+        ajouter_piece(piece);
     });
+}
+
+void Echiquier::ajouter_piece(Piece* piece){
+    if(piece == nullptr) return;
+    PieceItem* p = new PieceItem(piece, echec_model_);
+    pieces_[piece] = p;
+    connect(p, &PieceItem::piece_appuye, this, &Echiquier::case_pressee);
+    connect(p, &PieceItem::piece_relache, this, &Echiquier::case_pressee);
+    scene_->addItem(p);
 }
 
 void Echiquier::case_pressee(int i, int j)
@@ -213,8 +216,11 @@ void Echiquier::choix_promotion(int i, int j)
     fenetre->exec();
 }
 
-void Echiquier::deplacer_piece(vector<Position> positions)
+void Echiquier::deplacer_piece(Piece* piece, vector<Position> positions)
 {
+    auto it = pieces_.find(piece);
+    if(it == pieces_.end() || it->first == nullptr) return; // ca ne peut en principe pas se produire
+    it->second->deplacer();
     sound_.play();
     // on remet les couleurs initiales
     for (auto& position : positions)
@@ -238,9 +244,13 @@ void Echiquier::update_nbre_pieces_capturees(int index)
     }
 }
 
-void Echiquier::piece_mangee(const Type& type)
+void Echiquier::piece_mangee(Piece* piece_mangee)
 {
-    switch (type) {
+    auto it = pieces_.find(piece_mangee);
+    if(it == pieces_.end() || it->first == nullptr) return;
+    scene_->removeItem(it->second);
+    delete it->second;
+    switch (piece_mangee->get_type()) {
     case SOLDAT:
         update_nbre_pieces_capturees(0);
         break;

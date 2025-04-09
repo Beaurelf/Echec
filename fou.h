@@ -7,9 +7,10 @@ using namespace std;
 
 class Fou: public virtual Piece{
 public:
-    Fou(int x, int y, Couleur couleur, EchecModel* model);
+    Fou(int x, int y, Couleur couleur);
     ~Fou();
     vector<Position> positions_possibles(const Pieces& pieces) const override;
+    virtual Type get_type() const override;
 };
 
 #endif

@@ -33,8 +33,8 @@ public:
 
 signals:
     void piece_selectionee();
-    void piece_deplacee(std::vector<Position> positions);
-    void piece_mangee(const Type& type);
+    void piece_deplacee(Piece* piece, std::vector<Position> positions);
+    void piece_mangee(Piece* piece_mangee);
     void roi_en_echec();
     void roi_en_echec_et_mat();
     void roi_echec_et_mat(Piece* piece);

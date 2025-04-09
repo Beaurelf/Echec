@@ -1,37 +1,27 @@
-#pragma once
+#ifndef PIECE_H
+#define PIECE_H
 
 #include <vector>
-#include <QGraphicsObject>
-#include <QWidget>
-#include <QPainter>
-#include <QBrush>
-#include <QStyleOptionGraphicsItem>
-#include <QGraphicsSceneMouseEvent>
 #include "position.h"
 #include "utils.h"
 
 using namespace std;
 using namespace Utils;
 
-class EchecModel;
-
-class Piece : public QGraphicsObject
+class Piece
 {
-    Q_OBJECT
 public:
     Piece() = delete;
-    Piece(int x, int y, Couleur couleur, EchecModel* model, QGraphicsObject *parent = nullptr);
+    Piece(int x, int y, Couleur couleur);
     virtual ~Piece();
-
-    QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    void mise_a_jour_rendu();
 
     // deplacer piece (utilise deplacement_valide) et sa nouvelle position pos
     void se_deplacer(const Position& pos, const Pieces& pieces);
 
     // differentes positions que la piece peut occuper si elle se deplace
     virtual vector<Position> positions_possibles(const Pieces& pieces) const = 0;
+
+    virtual Type get_type() const = 0;
 
     // verifie si la position ne correspond pas a la position d'un autre pion du meme joueur
     virtual bool position_valide(const Position& pos, const Pieces& pieces) const;
@@ -60,10 +50,6 @@ protected:
     Position ancienne_position;
     Couleur couleur;
     string image;
-    EchecModel* echec_model_;
-    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
-signals:
-    void piece_appuye(int x, int y);
-    void piece_relache(int x, int y);
 };
+
+#endif

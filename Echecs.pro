@@ -20,6 +20,7 @@ SOURCES += \
     home.cpp \
     main.cpp \
     game.cpp \
+    pieceitem.cpp \
     position.cpp \
     piece.cpp \
     roi.cpp \
@@ -35,6 +36,7 @@ HEADERS += \
     echiquier.h \
     game.h \
     home.h \
+    pieceitem.h \
     position.h \
     piece.h \
     roi.h \
