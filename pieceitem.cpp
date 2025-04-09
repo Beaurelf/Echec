@@ -45,7 +45,7 @@ void PieceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     int y = static_cast<int>(scenePos.y() / TAILLE_CASE_ECHIQUIER);
     const Position pos = Position(x, y);
     qDebug() << pos.to_string();
-    if(piece_->get_position() == pos || !piece_->position_valide(pos, echec_model_->get_pieces()))
+    if(piece_->get_position() == pos || !piece_->deplacement_valide(pos, echec_model_->get_pieces()))
     {
         deplacer();
         return;
