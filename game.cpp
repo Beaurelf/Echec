@@ -17,17 +17,18 @@ void Game::setup()
     );
     this->setFixedSize(QSize(LARGEUR_HOME, HAUTEUR_HOME));
     home_ = new Home(this);
-    connect(home_, SIGNAL(lancer_jeu(bool)), this, SLOT(lancer_jeu(bool)));
-    connect(home_, SIGNAL(quitter_jeu()), this, SLOT(quitter_jeu()));
+    connect(home_, &Home::lancer_jeu, this, &Game::lancer_jeu);
+    connect(home_, &Home::quitter_jeu, this, &Game::quitter_jeu);
     this->setCentralWidget(home_);
 }
 
 void Game::accueil()
 {
+    delete echiquier_;
     this->setFixedSize(QSize(LARGEUR_HOME, HAUTEUR_HOME));
     home_ = new Home(this);
-    connect(home_, SIGNAL(lancer_jeu(bool)), this, SLOT(lancer_jeu(bool)));
-    connect(home_, SIGNAL(quitter_jeu()), this, SLOT(quitter_jeu()));
+    connect(home_, &Home::lancer_jeu, this, &Game::lancer_jeu);
+    connect(home_, &Home::quitter_jeu, this, &Game::quitter_jeu);
     this->setCentralWidget(home_);
 }
 
@@ -42,7 +43,8 @@ void Game::recommencer()
     connect(btn_oui, &QPushButton::clicked, fenetre, [this, fenetre](){
         delete echiquier_;
         echiquier_ = new Echiquier(machine_, this);
-        connect(echiquier_, SIGNAL(recommencer()), this, SLOT(recommencer()));
+        connect(echiquier_, &Echiquier::recommencer, this, &Game::recommencer);
+        connect(echiquier_, &Echiquier::aller_accueil, this, &Game::accueil);
         layout_->addWidget(echiquier_);
         fenetre->accept();
     });
@@ -108,5 +110,8 @@ void Game::quitter_jeu()
     this->close();
 }
 
-Game::~Game(){}
+Game::~Game(){
+    delete echiquier_;
+    delete home_;
+}
 

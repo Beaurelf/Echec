@@ -8,6 +8,13 @@ Echiquier::Echiquier(bool machine, QMainWindow *parent)
     setup();
 }
 
+Echiquier::~Echiquier()
+{
+    delete echec_model_;
+    delete minuterie1_;
+    delete minuterie2_;
+}
+
 void Echiquier::setupUi() {
     view_ = new QGraphicsView;
     scene_ = new QGraphicsScene;
@@ -15,8 +22,8 @@ void Echiquier::setupUi() {
     view_->setScene(scene_);
     view_->setAlignment(Qt::AlignCenter);
 
-    QHBoxLayout* conteneur = new QHBoxLayout;
-    QVBoxLayout* layoutEchequier = new QVBoxLayout;
+    QVBoxLayout* conteneurEchiquier = new QVBoxLayout;
+    QHBoxLayout* echiquierLayout = new QHBoxLayout;
     vector<string> images_noires = {PION_NOIR, CHEVALIER_NOIR, FOU_NOIR, TOUR_NOIR, REINE_NOIR};
     vector<string> images_blanches = {PION_BLANC, CHEVALIER_BLANC, FOU_BLANC, TOUR_BLANC, REINE_BLANC};
 
@@ -74,21 +81,24 @@ void Echiquier::setupUi() {
         couleur = couleur == COULEUR_BLANCHE ? COULEUR_GRIS : COULEUR_BLANCHE;
     }
 
-    QFont font("Century Gothic", 16);
-    label_joueur_ = new QLabel;
-    label_joueur_->setFont(font);
-    QString text = (echec_model_->get_joueur_courant() == BLANC) ? "Blanc" : "Noir";
-    label_joueur_->setText("C'est au tour du joueur " + text);
-
-    layoutEchequier->addWidget(view_);
-    layoutEchequier->addWidget(label_joueur_);
+    QFont font("Century Gothic", 18);
+    minuterie1_ = new Minuterie(10);
+    minuterie2_ = new Minuterie(10);
+    minuterie1_->setFont(font);
+    minuterie2_->setFont(font);
+    minuterie1_->setAlignment(Qt::AlignLeft);
+    minuterie2_->setAlignment(Qt::AlignRight);
 
     // ajout des layout contenant les pieces mangées
-    conteneur->addLayout(pieces_noires_mangees_);
-    conteneur->addLayout(layoutEchequier);
-    conteneur->addLayout(pieces_blanches_mangees_);
+    echiquierLayout->addLayout(pieces_noires_mangees_);
+    echiquierLayout->addWidget(view_);
+    echiquierLayout->addLayout(pieces_blanches_mangees_);
 
-    setLayout(conteneur);
+    conteneurEchiquier->addWidget(minuterie2_);
+    conteneurEchiquier->addLayout(echiquierLayout);
+    conteneurEchiquier->addWidget(minuterie1_);
+
+    setLayout(conteneurEchiquier);
 
 }
 
@@ -106,6 +116,7 @@ void Echiquier::setup()
     connect(echec_model_, &EchecModel::piece_promue, this, [this](Piece* piece){
         ajouter_piece(piece);
     });
+    minuterie1_->resume();
 }
 
 void Echiquier::ajouter_piece(Piece* piece){
@@ -226,8 +237,14 @@ void Echiquier::deplacer_piece(Piece* piece, vector<Position> positions)
     for (auto& position : positions)
         tabechiquier_[position.getX()][position.getY()]->retirer_marqueur();
     // on change de joueur
-    QString text = (echec_model_->get_joueur_courant() == BLANC) ? "Blanc" : "Noir";
-    label_joueur_->setText("C'est au tour du joueur " + text);
+    if(echec_model_->get_joueur_courant() == BLANC) {
+        minuterie1_->stop();
+        minuterie2_->resume();
+    }
+    else {
+        minuterie2_->stop();
+        minuterie1_->resume();
+    }
 }
 
 void Echiquier::update_nbre_pieces_capturees(int index)
@@ -300,15 +317,9 @@ void Echiquier::roi_en_echec_et_mat()
     btn_group->addWidget(btn_recommencer);
     btn_group->addWidget(btn_menu);
     QLabel* label = new QLabel;
-    label->setText("Le joueur " + joueur_courant + " a remporté cette partie voulez vous jouer une nouvelle partie ? \nou allez au menu principal ? \n");
+    label->setText("Le joueur " + joueur_courant + " a remporté cette partie voulez vous jouer une nouvelle partie ? \voulez vous allez au menu principal ? \n");
     layout->addWidget(label);
     layout->addLayout(btn_group);
     fenetre->setLayout(layout);
     fenetre->exec();
-}
-
-
-Echiquier::~Echiquier()
-{
-    delete echec_model_;
 }

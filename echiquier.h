@@ -18,6 +18,7 @@
 #include <QGraphicsView>
 #include "case_echequier.h"
 #include "echec_model.h"
+#include "minuterie.h"
 #include "pieceitem.h"
 
 typedef array<array<CaseEchequier*, TAILLE_ECHIQUIER>, TAILLE_ECHIQUIER> Tabechiquier;
@@ -30,7 +31,8 @@ private:
     QGraphicsScene* scene_;
     QGraphicsView* view_;
     Tabechiquier tabechiquier_;
-    QLabel* label_joueur_; // indiquant quel joueur doit jouer
+    Minuterie* minuterie1_;
+    Minuterie* minuterie2_;
     QMainWindow *parent_;
     bool machine_; // true si le joueur joue contre la machine
     EchecModel* echec_model_;

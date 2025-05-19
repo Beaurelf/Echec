@@ -47,7 +47,7 @@ namespace Utils {
     const int TAILLE_CURSOR = 60;
     const int HAUTEUR_HOME = 680;
     const int LARGEUR_HOME = 680;
-    const int HAUTEUR_GAME = 710;
+    const int HAUTEUR_GAME = 750;
     const int LARGEUR_GAME = 975;
     const int HAUTEUR_CONTROLS = 680;
     const int LARGEUR_CONTROLS = 200;
